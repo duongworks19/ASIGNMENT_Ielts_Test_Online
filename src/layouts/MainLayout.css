@@ -1,0 +1,177 @@
+/* ===== MAIN LAYOUT ===== */
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(0, 82, 255, 0.08), transparent 28%),
+    radial-gradient(circle at 78% 22%, rgba(32, 183, 255, 0.08), transparent 26%),
+    #ffffff;
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+  min-height: 40vh;
+}
+
+/* ===== GLOBAL STYLES ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #5b616e;
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #0a0b0d;
+  font-weight: 400;
+  margin: 0 0 1rem 0;
+}
+
+h1 {
+  font-size: 52px;
+  line-height: 1;
+  letter-spacing: -1.3px;
+}
+
+h2 {
+  font-size: 44px;
+  line-height: 1.09;
+  letter-spacing: -1px;
+}
+
+h3 {
+  font-size: 32px;
+  line-height: 1.13;
+  letter-spacing: -0.4px;
+}
+
+h4 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.33;
+  letter-spacing: 0;
+}
+
+h5 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+h6 {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+/* Links */
+a {
+  color: #0052ff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #003ecc;
+}
+
+/* Buttons */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+/* Lists */
+ul, ol {
+  padding-left: 20px;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Section Padding */
+section {
+  padding: 96px 0;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 44px;
+    letter-spacing: -1px;
+  }
+
+  h2 {
+    font-size: 36px;
+    letter-spacing: -0.5px;
+  }
+
+  h3 {
+    font-size: 28px;
+    letter-spacing: -0.3px;
+  }
+
+  section {
+    padding: 64px 0;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  h1 {
+    font-size: 32px;
+    letter-spacing: -0.5px;
+  }
+
+  h2 {
+    font-size: 28px;
+    letter-spacing: -0.3px;
+  }
+
+  h3 {
+    font-size: 22px;
+  }
+
+  section {
+    padding: 48px 0;
+  }
+
+  .container {
+    padding: 0 12px;
+  }
+}

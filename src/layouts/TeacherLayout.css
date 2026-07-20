@@ -1,0 +1,52 @@
+.teacher-layout {
+  --teacher-page-bg: #f8fafc;
+  --teacher-sidebar-bg: #ffffff;
+  --teacher-sidebar-border: #e2e8f0;
+  --teacher-text: #0f172a;
+  --teacher-muted: #64748b;
+  --teacher-hover-bg: #f1f5f9;
+  
+  display: flex;
+  min-height: 100vh;
+  background: var(--teacher-page-bg);
+  color: var(--teacher-text);
+}
+
+.teacher-sidebar {
+  background-color: var(--teacher-sidebar-bg);
+  border-right: 1px solid var(--teacher-sidebar-border);
+  width: 260px;
+  min-width: 260px;
+  flex-shrink: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.teacher-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: var(--teacher-muted);
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 0.25rem;
+}
+
+.teacher-nav-link:hover {
+  background-color: var(--teacher-hover-bg);
+  color: var(--teacher-text);
+}
+
+.teacher-nav-link.active {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+  color: var(--bs-primary) !important;
+  font-weight: 600;
+}
+
+.teacher-nav-link i {
+  font-size: 1.1rem;
+}

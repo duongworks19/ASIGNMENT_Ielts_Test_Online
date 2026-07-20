@@ -1,0 +1,197 @@
+/* DashboardPage.css — Premium */
+
+.dbp-page {
+  background: #f0f4f8;
+  min-height: 100vh;
+}
+
+/* ── HERO ── */
+.dbp-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
+  padding: 72px 0 110px;
+  position: relative;
+  overflow: hidden;
+}
+.dbp-hero-bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.dbp-hero-bg-circle.c1 {
+  width: 460px; height: 460px;
+  top: -130px; right: -80px;
+  background: radial-gradient(circle, rgba(96,165,250,0.1) 0%, transparent 70%);
+}
+.dbp-hero-bg-circle.c2 {
+  width: 560px; height: 560px;
+  bottom: -200px; left: -100px;
+  background: radial-gradient(circle, rgba(167,139,250,0.07) 0%, transparent 70%);
+}
+.dbp-hero-inner {
+  position: relative;
+  z-index: 2;
+}
+.dbp-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 50rem;
+  padding: 6px 18px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #bfdbfe;
+  margin-bottom: 18px;
+}
+.dbp-hero-title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.dbp-hero-title span {
+  background: linear-gradient(90deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.dbp-hero-sub {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.97rem;
+  margin-bottom: 28px;
+  max-width: 520px;
+}
+.dbp-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dbp-btn-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #1d4ed8;
+  border-radius: 50rem;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.16);
+  transition: all 0.22s ease;
+}
+.dbp-btn-solid:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.22); color: #1d4ed8; }
+.dbp-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  border-radius: 50rem;
+  padding: 11px 22px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  backdrop-filter: blur(4px);
+  transition: all 0.22s ease;
+}
+.dbp-btn-ghost:hover { background: rgba(255,255,255,0.2); color: #fff; transform: translateY(-2px); }
+
+/* ── MAIN (floating) ── */
+.dbp-main {
+  margin-top: 40px;
+  position: relative;
+  z-index: 20;
+  padding-bottom: 60px;
+}
+
+/* ── STAT CARDS ── */
+.dbp-stat-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px 22px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.dbp-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.11);
+}
+.dbp-stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+.dbp-stat-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+.dbp-stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+/* ── CHART CARDS ── */
+.dbp-chart-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.dbp-chart-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.dbp-chart-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+.dbp-chart-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.dbp-chart-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Loading */
+.dbp-loading {
+  text-align: center;
+  padding: 60px 0;
+}

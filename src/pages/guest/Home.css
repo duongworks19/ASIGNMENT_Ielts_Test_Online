@@ -1,0 +1,31 @@
+/*
+ * Home.css — chỉ giữ phần Bootstrap không cung cấp sẵn:
+ * - Gradient nền cho hero
+ * - Hiệu ứng hover nhẹ cho card
+ * Toàn bộ layout/spacing/typography còn lại dùng class tiện ích của Bootstrap.
+ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+.home-page {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Hero: gradient indigo → violet đồng bộ với phần guest (catalog, chi tiết khóa học) */
+.home-hero {
+  background:
+    radial-gradient(900px 320px at 12% -10%, rgba(124, 58, 237, 0.55), transparent),
+    linear-gradient(135deg, #1e1b4b 0%, #312e81 52%, #4f46e5 100%);
+}
+
+/* Card hình thức học: nhấc nhẹ khi hover để giao diện sống động hơn */
+.home-option-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-option-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 1rem 2.5rem -1rem rgba(79, 70, 229, 0.45) !important;
+}

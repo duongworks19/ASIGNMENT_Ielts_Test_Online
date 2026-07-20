@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Use Case Login Form</title>
+<style>
+    body {
+        font-family: 'Calibri', 'Arial', sans-serif;
+        padding: 20px;
+        background-color: #e5e5e5;
+    }
+    .form-container {
+        background-color: white;
+        padding: 30px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        width: 900px;
+        margin: auto;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14.5px;
+        color: #000;
+    }
+    th, td {
+        border: 1.5px solid #1c265c;
+        padding: 8px 12px;
+        vertical-align: top;
+        line-height: 1.5;
+    }
+    .col-header {
+        text-align: right;
+        font-weight: bold;
+        width: 22%;
+        white-space: nowrap;
+    }
+    .header-row td {
+        background-color: #000066;
+        color: white;
+        border-color: #000066;
+    }
+    .content {
+        text-align: left;
+    }
+    .bold-title {
+        font-weight: bold;
+        font-size: 16px;
+    }
+</style>
+</head>
+<body>
+
+<div class="form-container">
+    <table>
+        <tr class="header-row">
+            <td class="col-header">Use Case ID:</td>
+            <td colspan="3" class="content bold-title">UC_LOGIN</td>
+        </tr>
+        <tr>
+            <td class="col-header">Use Case Name:</td>
+            <td colspan="3" class="content">User Login</td>
+        </tr>
+        <tr>
+            <td class="col-header">Created By:</td>
+            <td class="content" style="width: 26%;">[Tên của bạn]</td>
+            <td style="width: 26%;"></td>
+            <td style="width: 26%;"></td>
+        </tr>
+        <tr>
+            <td class="col-header">Date Created:</td>
+            <td class="content">13/06/2026</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="col-header">Actors:</td>
+            <td colspan="3" class="content">IELTS User (Student, Tutor, Admin)</td>
+        </tr>
+        <tr>
+            <td class="col-header">Triggers:</td>
+            <td colspan="3" class="content">User clicks on "Login" button</td>
+        </tr>
+        <tr>
+            <td class="col-header">Description:</td>
+            <td colspan="3" class="content">User logs into the system to access their respective dashboard and IELTS content</td>
+        </tr>
+        <tr>
+            <td class="col-header">Pre-conditions:</td>
+            <td colspan="3" class="content">User has a registered account in the system</td>
+        </tr>
+        <tr>
+            <td class="col-header">Post-conditions:</td>
+            <td colspan="3" class="content">User is successfully authenticated and redirected to their dashboard</td>
+        </tr>
+        <tr>
+            <td class="col-header" style="vertical-align: middle;">Normal Flow:</td>
+            <td colspan="3" class="content">
+                <b>UC_LOGIN_NF_1.</b> User clicks on login.<br>
+                <b>UC_LOGIN_NF_2.</b> The system displays the login form.<br>
+                <b>UC_LOGIN_NF_3.</b> User fills up Email (Registered IELTS ID) and Password.<br>
+                <b>UC_LOGIN_NF_4.</b> User submits the form.<br>
+                <b>UC_LOGIN_NF_5.</b> The system validates the input data:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;- User email is found in the registered student/tutor/admin database.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;- Entered password matches the encrypted password for the validated email ID.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;- Account status (e.g., Active) allows access to the IELTS content.<br>
+                <b>UC_LOGIN_NF_6.</b> All validation success. The system initiates User Dashboard Access (IELTS Content & Tests).
+            </td>
+        </tr>
+        <tr>
+            <td class="col-header" style="vertical-align: middle;">Alternative Flows:</td>
+            <td colspan="3" class="content">
+                <b>UC_LOGIN_AT_1.</b> At step UC_LOGIN_NF_5, if email is not found or password does not match, the system shows an error message.<br>
+                <b>UC_LOGIN_AT_2.</b> At step UC_LOGIN_NF_5, if the account status is not Active, system denies access and shows error message.
+            </td>
+        </tr>
+        <tr>
+            <td class="col-header">Exceptions:</td>
+            <td colspan="3" class="content">System error or database connection error</td>
+        </tr>
+        <tr>
+            <td class="col-header">Priority:</td>
+            <td colspan="3" class="content">High</td>
+        </tr>
+        <tr>
+            <td class="col-header">Other information:</td>
+            <td colspan="3" class="content">Email must be valid. Required fields cannot be empty.</td>
+        </tr>
+        <tr>
+            <td class="col-header">Frequency of Use:</td>
+            <td colspan="3" class="content">Usually</td>
+        </tr>
+        <tr>
+            <td class="col-header">Business Rules:</td>
+            <td colspan="3" class="content">Account status must allow access (Student, Tutor, Admin dashboards)</td>
+        </tr>
+        <tr>
+            <td class="col-header">Assumptions:</td>
+            <td colspan="3" class="content">Database is accessible and functioning</td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>

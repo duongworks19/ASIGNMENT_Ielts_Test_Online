@@ -1,0 +1,66 @@
+/* ===== COURSE DETAIL — chỉ giữ các helper bổ trợ cho layout Bootstrap ===== */
+.cd-page {
+  min-height: 100vh;
+}
+
+/* ===== HERO ===== */
+.cd-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 64px 0 56px;
+  color: #fff;
+  isolation: isolate;
+}
+.cd-hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  filter: blur(2px);
+  transform: scale(1.06);
+}
+.cd-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(120deg, rgba(15, 23, 42, 0.93) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(59, 130, 246, 0.75) 100%);
+}
+.cd-breadcrumb {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 18px;
+  transition: color 0.2s;
+}
+.cd-breadcrumb:hover { color: #fff; }
+
+/* Số thứ tự bài học trong giáo trình */
+.cd-syllabus-num {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Khối flashcard nổi bật bằng nền gradient ấm */
+.cd-flashcard-promo {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 1px solid #bae6fd !important;
+}
+
+/* Sidebar dính khi cuộn trên desktop */
+@media (min-width: 992px) {
+  .cd-sticky {
+    position: sticky;
+    top: 24px;
+  }
+}

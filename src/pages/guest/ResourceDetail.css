@@ -1,0 +1,75 @@
+/* ============ CHI TIẾT TÀI NGUYÊN (GUEST) — bổ trợ cho Bootstrap ============ */
+
+/* Hero ảnh nền + overlay tối để chữ trắng dễ đọc */
+.article-hero {
+  background-size: cover;
+  background-position: center;
+}
+.article-hero-overlay {
+  background: linear-gradient(180deg, rgba(15, 23, 41, 0.55) 0%, rgba(15, 23, 41, 0.85) 100%);
+}
+
+/* Tiêu đề mục có gạch nhấn bên trái */
+.article-heading {
+  position: relative;
+  padding-left: 0.9rem;
+}
+.article-heading::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 4px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #4f46e5, #7c3aed);
+}
+
+/* Danh sách bullet tùy biến */
+.article-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+.article-list li {
+  position: relative;
+  padding-left: 1.6rem;
+  color: #475569;
+}
+.article-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+/* Hộp mẹo nổi bật */
+.article-tip {
+  background: #f5f3ff;
+  border-left: 4px solid #7c3aed;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  color: #4c1d95;
+}
+.article-tip-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+/* Card CTA gradient ở sidebar */
+.article-cta-card {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+/* Bài liên quan */
+.article-related img {
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.article-related:hover span {
+  color: #4f46e5 !important;
+}

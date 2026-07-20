@@ -1,0 +1,152 @@
+@keyframes skillRise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes skillSweep {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(120%); }
+}
+
+.skills-page {
+  min-height: 100dvh;
+  background: #f8fafc;
+  color: #111827;
+}
+
+.skills-hero {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(135deg, rgba(17, 24, 39, 0.96), rgba(15, 118, 110, 0.92)),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 80px);
+}
+
+.skills-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.14) 45%, transparent 70%);
+  animation: skillSweep 5.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.skills-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.skills-title {
+  font-size: clamp(2.3rem, 5vw, 4.8rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.skills-subtitle {
+  max-width: 68ch;
+  color: rgba(255,255,255,0.72);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.skills-hero-panel {
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.92);
+  color: #111827;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  animation: skillRise 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.skill-card,
+.skill-focus-card,
+.approved-test-card {
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
+}
+
+.skill-card {
+  cursor: pointer;
+  min-height: 245px;
+  animation: skillRise 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.skill-card:hover,
+.skill-card-active {
+  transform: translateY(-7px);
+  border-color: rgba(15, 118, 110, 0.4) !important;
+  box-shadow: 0 28px 64px rgba(15, 23, 42, 0.13);
+}
+
+.skill-icon,
+.skill-inline-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.65rem;
+}
+
+.skill-inline-icon {
+  flex: 0 0 auto;
+}
+
+.skill-tip {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.95rem 1rem;
+}
+
+.skill-tip-num {
+  flex: 0 0 auto;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+.approved-test-card {
+  animation: skillRise 500ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--test-index) * 70ms) both;
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease;
+}
+
+.approved-test-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.14);
+}
+
+.approved-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
+.mini-quiz-section {
+  animation: skillRise 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.quiz-item {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.quiz-item:last-of-type {
+  border-bottom: none;
+}

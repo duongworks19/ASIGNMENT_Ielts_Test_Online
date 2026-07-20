@@ -1,0 +1,483 @@
+/* FlashcardTest.css */
+
+.test-mode-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: inherit;
+}
+
+/* SETUP SCREEN */
+.test-setup-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 1rem;
+}
+
+.test-setup-card {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  padding: 2.5rem;
+}
+
+.test-setup-card h2 {
+  color: #0f172a;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  font-size: 1.75rem;
+}
+
+.setup-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.setup-form-group label {
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.setup-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.setup-toggle:hover {
+  background-color: #f8fafc;
+}
+
+.setup-toggle.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.setup-toggle label {
+  margin-bottom: 0;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+}
+
+.btn-start-test {
+  background-color: #10b981;
+  color: #ffffff;
+  border: none;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  width: 100%;
+  font-size: 1.125rem;
+  margin-top: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.btn-start-test:hover {
+  background-color: #059669;
+}
+
+.btn-start-test:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* TAKING TEST SCREEN */
+.test-taking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.test-taking-header h3 {
+  color: #0f172a;
+  font-weight: 700;
+  margin: 0;
+}
+
+.btn-submit-test {
+  background-color: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-submit-test:hover {
+  background-color: #1e293b;
+}
+
+.question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.question-item {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.question-number {
+  font-weight: 700;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.question-text {
+  font-size: 1.25rem;
+  color: #0f172a;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.question-definition {
+  font-size: 1.125rem;
+  color: #334155;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Multiple Choice */
+.mcq-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 600px) {
+  .mcq-options {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.mcq-option {
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+.mcq-option:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.mcq-option.selected {
+  border-color: #0f172a;
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.mcq-option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.mcq-option.selected .mcq-option-letter {
+  background-color: #0f172a;
+  color: #ffffff;
+}
+
+/* True / False Options */
+.tf-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.tf-option {
+  padding: 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #334155;
+}
+
+.tf-option:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.tf-option.selected {
+  border-color: #0f172a;
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Written Input */
+.written-input {
+  width: 100%;
+  padding: 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.written-input:focus {
+  border-color: #10b981;
+}
+
+/* RESULTS SCREEN */
+.test-results-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 992px) {
+  .test-results-screen {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+/* Left Sidebar */
+.results-sidebar {
+  flex: 0 0 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.sidebar-icon.correct {
+  color: #10b981;
+}
+
+.sidebar-icon.incorrect {
+  color: #ef4444; /* red-500 */
+}
+
+/* Main Results Content */
+.results-main {
+  flex: 1;
+}
+
+.results-summary {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.results-summary h2 {
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.results-stats-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.donut-chart {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-inner {
+  width: 90px;
+  height: 90px;
+  background-color: #f6f7fb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  z-index: 2;
+}
+
+.stats-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.stat-label.correct {
+  color: #10b981;
+  min-width: 60px;
+}
+
+.stat-label.incorrect {
+  color: #ef4444;
+  min-width: 60px;
+}
+
+.stat-value {
+  background-color: #ffffff;
+  padding: 0.25rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.stat-value.correct {
+  color: #10b981;
+  border-color: #10b981;
+  background-color: #ecfdf5;
+}
+
+.stat-value.incorrect {
+  color: #ef4444;
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+/* Detailed Answers Review */
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.review-item {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .review-item {
+    flex-direction: row;
+    gap: 2rem;
+  }
+}
+
+.review-term {
+  flex: 1;
+  font-size: 1.25rem;
+  color: #0f172a;
+  font-weight: 500;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .review-term {
+    border-bottom: none;
+    border-right: 1px solid #e2e8f0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    padding-right: 2rem;
+  }
+}
+
+.review-options {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.review-option {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.review-option.correct {
+  background-color: #ecfdf5;
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.review-option.wrong-selected {
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.review-option.neutral {
+  border: 1px solid transparent;
+}
+
+.written-review-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.written-review-text.strike {
+  text-decoration: line-through;
+  color: #ef4444;
+}

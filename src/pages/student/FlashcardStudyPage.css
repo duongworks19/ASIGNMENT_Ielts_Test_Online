@@ -1,0 +1,122 @@
+.study-mode-nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  background-color: #f6f7fb;
+  color: #1a1d28;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.mode-btn i {
+  color: #4255ff;
+  font-size: 1.25rem;
+}
+
+.mode-btn:hover {
+  background-color: #edeff4;
+}
+
+.mode-btn.active {
+  background-color: #ffffff;
+  border-color: #d9dde8;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.05);
+}
+
+.mode-btn.active i {
+  color: #4255ff;
+}
+
+.term-list-container {
+  margin-top: 3rem;
+}
+
+.term-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.term-list-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1d28;
+  margin: 0;
+}
+
+.term-item {
+  display: flex;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.05);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.term-item-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .term-item-content {
+    flex-direction: row;
+  }
+}
+
+.term-word {
+  flex: 1;
+  padding: 1.5rem;
+  font-size: 1.125rem;
+  color: #1a1d28;
+  border-right: 1px solid #f6f7fb;
+}
+
+.term-definition {
+  flex: 2;
+  padding: 1.5rem;
+  font-size: 1.125rem;
+  color: #1a1d28;
+}
+
+.term-actions {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 0.5rem;
+  background-color: #ffffff;
+}
+
+.term-actions .icon-btn {
+  background: none;
+  border: none;
+  color: #586380;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.term-actions .icon-btn:hover {
+  background-color: #f6f7fb;
+  color: #1a1d28;
+}
+
+.term-actions .icon-btn.star:hover {
+  color: #ffcd1f;
+}
