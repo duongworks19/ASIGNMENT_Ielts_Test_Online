@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Spinner, Alert, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Spinner, Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { getUsers } from '../../services/adminService';
+import { getDashboardSummary } from '../../services/adminService';
 import { getCurrentUser } from '../../services/authService';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:9999';
+import { useAuth } from '../../contexts/AuthContext';
 
 const STAT_DEFS = [
   {
@@ -53,7 +51,8 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const currentUser = getCurrentUser();
+  const { user: contextUser } = useAuth();
+  const currentUser = contextUser || getCurrentUser();
   const firstName = currentUser?.fullName?.split(' ').slice(-1)[0] || 'System Admin';
 
   const fetchStats = useCallback(async () => {
@@ -61,34 +60,11 @@ export default function AdminDashboard() {
       setLoading(true);
       setError(null);
 
-      const [usersRes, approvalsRes, logsRes, coursesRes, recentLogsRes] = await Promise.all([
-        getUsers({ _page: 1, _per_page: 1 }), 
-        axios.get(`${API_URL}/approvalRequests?status=pending&_page=1&_per_page=1`).catch(() => ({ data: { items: 0 } })),
-        axios.get(`${API_URL}/auditLogs?_page=1&_per_page=1`).catch(() => ({ data: { items: 0 } })),
-        axios.get(`${API_URL}/courses?_page=1&_per_page=1`).catch(() => ({ data: { items: 0 } })),
-        axios.get(`${API_URL}/auditLogs?_sort=timestamp&_order=desc&_limit=5`).catch(() => ({ data: [] }))
-      ]);
-
-      const parseCount = (res) => {
-        if (res?.data?.items !== undefined) return parseInt(res.data.items, 10);
-        if (res?.headers?.['x-total-count']) return parseInt(res.headers['x-total-count'], 10);
-        return Array.isArray(res?.data?.data) ? res.data.data.length : (Array.isArray(res?.data) ? res.data.length : (Array.isArray(res) ? res.length : 0));
-      };
-
-      setStats({
-        totalUsers: parseCount(usersRes),
-        pendingContent: parseCount(approvalsRes),
-        totalLogs: parseCount(logsRes),
-        totalCourses: parseCount(coursesRes),
-      });
-
-      const logsData = Array.isArray(recentLogsRes?.data?.data) ? recentLogsRes.data.data : (Array.isArray(recentLogsRes?.data) ? recentLogsRes.data : []);
-      const sortedLogs = [...logsData]
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 5);
-      setRecentLogs(sortedLogs);
-    } catch (error) {
-      setError('Failed to load dashboard statistics. Please try again later.');
+      const summary = await getDashboardSummary();
+      setStats(summary.stats);
+      setRecentLogs(Array.isArray(summary.recentLogs) ? summary.recentLogs : []);
+    } catch (requestError) {
+      setError(requestError.message || 'Không thể tải dữ liệu tổng quan quản trị.');
     } finally {
       setLoading(false);
     }
@@ -99,10 +75,11 @@ export default function AdminDashboard() {
   }, [fetchStats]);
 
   const getActionBadge = (action) => {
-    if (action.includes('Delete')) return <Badge bg="danger">Delete</Badge>;
-    if (action.includes('Create') || action.includes('Add')) return <Badge bg="success">Create</Badge>;
-    if (action.includes('Update') || action.includes('Edit')) return <Badge bg="warning" text="dark">Update</Badge>;
-    if (action.includes('Login') || action.includes('Logout')) return <Badge bg="info">Auth</Badge>;
+    const normalizedAction = String(action || '').toUpperCase();
+    if (normalizedAction.includes('DELETE')) return <Badge bg="danger">Delete</Badge>;
+    if (normalizedAction.includes('CREATE') || normalizedAction.includes('ADD')) return <Badge bg="success">Create</Badge>;
+    if (normalizedAction.includes('UPDATE') || normalizedAction.includes('EDIT') || normalizedAction.includes('CHANGE')) return <Badge bg="warning" text="dark">Update</Badge>;
+    if (normalizedAction.includes('LOGIN') || normalizedAction.includes('LOGOUT')) return <Badge bg="info">Auth</Badge>;
     return <Badge bg="secondary">System</Badge>;
   };
 
@@ -139,7 +116,7 @@ export default function AdminDashboard() {
               <Link to="/admin/users" className="tp-btn-primary">
                 <i className="bi bi-people-fill"></i> Quản lý Người dùng
               </Link>
-              <Link to="/admin/payments" className="tp-btn-ghost">
+              <Link to="/admin/transactions" className="tp-btn-ghost">
                 <i className="bi bi-credit-card-fill"></i> Lịch sử Giao dịch
               </Link>
             </div>
@@ -157,6 +134,9 @@ export default function AdminDashboard() {
               <div>
                 <div className="fw-bold text-dark mb-1">Lỗi kết nối</div>
                 <div className="text-secondary small">{error}</div>
+                <Button variant="outline-danger" size="sm" className="mt-2" onClick={fetchStats}>
+                  Thử tải lại
+                </Button>
               </div>
             </div>
           )}
@@ -221,20 +201,20 @@ export default function AdminDashboard() {
                       <tr key={log.id}>
                         <td className="ps-4">
                           <span className="text-secondary small fw-medium">
-                            {log.timestamp ? new Date(log.timestamp).toLocaleString('vi-VN') : 'N/A'}
+                            {log.createdAt ? new Date(log.createdAt).toLocaleString('vi-VN') : 'N/A'}
                           </span>
                         </td>
                         <td>
-                          <code className="text-secondary small">{log.adminId || log.userId || 'System'}</code>
+                          <code className="text-secondary small">{log.actorId || 'System'}</code>
                         </td>
                         <td>{getActionBadge(log.action)}</td>
                         <td>
-                          <span className="fw-semibold text-dark">{log.targetEntity || log.action}</span>
+                          <span className="fw-semibold text-dark">{log.targetType || log.targetEntity || log.action}</span>
                           {log.targetId && <code className="ms-2 small text-muted">#{log.targetId}</code>}
                         </td>
                         <td className="text-end pe-4">
                           <span className="text-muted small text-truncate d-inline-block" style={{ maxWidth: '200px' }}>
-                            {log.details || 'N/A'}
+                            {log.newValue ? JSON.stringify(log.newValue) : 'N/A'}
                           </span>
                         </td>
                       </tr>

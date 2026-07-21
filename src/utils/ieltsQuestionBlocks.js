@@ -33,7 +33,7 @@ const getMarkerLabel = (line = '') => {
   return marker ? marker[1].trim() : '';
 };
 
-const getQuestionType = (blockType) => {
+export const getQuestionType = (blockType) => {
   if (blockType === 'Multiple Choice') return 'multiple-choice';
   if (blockType === 'True/False/Not Given' || blockType === 'Yes/No/Not Given') {
     return 'true-false-not-given';

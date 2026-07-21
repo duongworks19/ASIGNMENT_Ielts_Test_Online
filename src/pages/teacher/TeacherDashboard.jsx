@@ -50,7 +50,7 @@ export default function TeacherDashboard() {
   const [recentApprovals, setRecentApprovals] = useState([]);
 
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
   const firstName = currentUser?.fullName?.split(' ').slice(-1)[0] || 'Giảng viên';
 
   useEffect(() => {

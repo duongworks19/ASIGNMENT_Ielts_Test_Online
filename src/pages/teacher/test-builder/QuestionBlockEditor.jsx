@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Form, Modal, Row } from 'react-bootstrap';
 import { parseAdvancedQuestionText } from '../../../utils/ieltsQuestionBlocks';
+import { READING_SAMPLES, LISTENING_SAMPLES, DEFAULT_SAMPLE } from '../../../utils/sampleQuestions';
 
 const SAMPLE_TEXT = `[MCQ]
 1. Why does the speaker call the office?
@@ -24,6 +25,9 @@ export default function QuestionBlockEditor({
   blocks = [],
   onChange,
   variant = 'primary',
+  defaultSampleText,
+  skill = 'Reading',
+  referenceIndex = 0,
 }) {
   const [rawText, setRawText] = useState('');
   const [parsedBlocks, setParsedBlocks] = useState([]);
@@ -122,7 +126,15 @@ export default function QuestionBlockEditor({
               <Button
                 type="button"
                 variant={`outline-${variant}`}
-                onClick={() => setRawText((value) => value || SAMPLE_TEXT)}
+                onClick={() => {
+                  let sampleText = defaultSampleText || DEFAULT_SAMPLE || SAMPLE_TEXT;
+                  if (skill === 'Reading' && READING_SAMPLES[referenceIndex]) {
+                    sampleText = READING_SAMPLES[referenceIndex];
+                  } else if (skill === 'Listening' && LISTENING_SAMPLES[referenceIndex]) {
+                    sampleText = LISTENING_SAMPLES[referenceIndex];
+                  }
+                  setRawText((value) => value || sampleText);
+                }}
               >
                 <i className="bi bi-stars me-1" />
                 Sample

@@ -16,20 +16,20 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import MyCoursesPage from './MyCoursesPage';
 import * as service from '../../services/courseLearning.service';
+import { setCurrentUserSnapshot } from '../../services/authService';
 
 // ── Mock react-router-dom ──────────────────────────────────────────────────
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', () => ({
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
 // ── Mock service ───────────────────────────────────────────────────────────
-vi.mock('../../services/courseLearning.service', () => ({
-  getEnrollmentsByUser: vi.fn(),
-  getCourseById: vi.fn(),
+jest.mock('../../services/courseLearning.service', () => ({
+  getEnrollmentsByUser: jest.fn(),
+  getCourseById: jest.fn(),
 }));
 
 // ── Test Data ──────────────────────────────────────────────────────────────
@@ -59,7 +59,8 @@ const MOCK_COURSES = {
 
 describe('MyCoursesPage Component', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
+    setCurrentUserSnapshot({ id: 'u-001', role: 'student', status: 'active' });
   });
 
   // TC_MC_01 — Happy path: render enrolled courses

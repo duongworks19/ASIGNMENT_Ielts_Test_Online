@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import HistoryFilter from '../../components/feature-student-dashboard-history/HistoryFilter';
 import HistoryTable from '../../components/feature-student-dashboard-history/HistoryTable';
 import { useHistoryFilter } from '../../hooks/useHistoryFilter';
 import { getCurrentUser } from '../../services/authService';
 import './LearningHistoryPage.css';
-
-const API_URL = 'http://localhost:9999';
 
 const LearningHistoryPage = () => {
   const currentUser = getCurrentUser();
@@ -23,15 +21,9 @@ const LearningHistoryPage = () => {
     const fetchAttempts = async () => {
       try {
         setLoading(true);
-        let resolvedUserId = userId;
-        if (currentUser?.email) {
-          try {
-            const userRes = await axios.get(`${API_URL}/users?email=${encodeURIComponent(currentUser.email)}`);
-            if (userRes.data?.length > 0) resolvedUserId = userRes.data[0].id;
-          } catch (_) { /* dùng userId cũ nếu fetch lỗi */ }
-        }
-        const res    = await axios.get(`${API_URL}/testAttempts?userId=${resolvedUserId}`);
-        const testRes = await axios.get(`${API_URL}/tests`);
+        if (!userId) throw new Error('Phiên đăng nhập không hợp lệ.');
+        const res = await api.get(`/testAttempts?userId=${encodeURIComponent(userId)}`);
+        const testRes = await api.get('/tests');
         const tests = testRes.data || [];
         
         // Filter out incomplete attempts (they don't have a submittedAt)

@@ -15,7 +15,6 @@
  * ─────────────────────────────────────────────────────────────────────────────────────
  */
 
-import { describe, it, expect } from 'vitest';
 import { calculateProgress, getNextLesson, getPreviousLesson } from './progress.util';
 
 const LESSONS = [

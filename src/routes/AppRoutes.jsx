@@ -1,10 +1,15 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Navigate, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
+import { useAuth } from '../contexts/AuthContext';
 
 import Home from '../pages/guest/Home';
 import Login from '../pages/guest/Login';
 import Register from '../pages/guest/Register';
+import VerifyEmail from '../pages/guest/VerifyEmail';
+import ForgotPassword from '../pages/guest/ForgotPassword';
+import ResetPassword from '../pages/guest/ResetPassword';
+import AccessDenied from '../pages/guest/AccessDenied';
 import CourseList from '../pages/guest/CourseList';
 import CourseDetail from '../pages/guest/CourseDetail';
 import OnlineCourses from '../pages/guest/OnlineCourses';
@@ -12,6 +17,7 @@ import ResourceDetail from '../pages/guest/ResourceDetail';
 import SkillPractice from '../pages/guest/SkillPractice';
 import Checkout from '../pages/guest/Checkout';
 import CartCheckout from '../pages/guest/CartCheckout';
+import PaymentResult from '../pages/guest/PaymentResult';
 import WishlistPage from '../pages/guest/WishlistPage';
 
 import StudentDashboard from '../pages/student/DashboardPage';
@@ -52,7 +58,6 @@ import UserManagement from '../pages/admin/UserManagement';
 import AdminCourseManagement from '../pages/admin/CourseManagement';
 import LessonManagement from '../pages/admin/LessonManagement';
 import TestManagement from '../pages/admin/TestManagement';
-import PaymentManagement from '../pages/admin/PaymentManagement';
 import AuditLogs from '../pages/admin/AuditLogs';
 import AdminFlashcardManagement from '../pages/admin/FlashcardManagement';
 import TransactionList from '../pages/admin/TransactionList';
@@ -62,14 +67,28 @@ import StudentLayout from '../layouts/StudentLayout';
 import TeacherLayout from '../layouts/TeacherLayout';
 import AdminLayout from '../layouts/AdminLayout';
 
+const ProfileRedirect = () => {
+  const { user } = useAuth();
+  if (user?.role === 'admin') return <Navigate to="/admin/profile" replace />;
+  if (user?.role === 'teacher') return <Navigate to="/teacher/profile" replace />;
+  return <Navigate to="/learning/profile" replace />;
+};
+
 export default function AppRoutes() {
   return (
     <Routes>
+      <Route element={<ProtectedRoute allowedRoles={['student', 'teacher', 'admin']} />}>
+        <Route path="/profile" element={<ProfileRedirect />} />
+      </Route>
 
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/403" element={<AccessDenied />} />
         <Route path="/courses" element={<CourseList />} />
         <Route path="/resources/:id" element={<ResourceDetail />} />
         <Route path="/skills" element={<SkillPractice />} />
@@ -81,9 +100,16 @@ export default function AppRoutes() {
         <Route path="/free-tests/:id" element={<TestDetailPage />} />
         <Route path="/free-tests/attempt/:attemptId" element={<TestSessionPage />} />
         <Route path="/free-tests/review/:attemptId" element={<TestReviewPage />} />
+        <Route element={<ProtectedRoute allowedRoles={['student', 'teacher', 'admin']} />}>
+          <Route path="/profile" element={<ProfileRedirect />} />
+        </Route>
+        <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+          <Route path="/payment/success" element={<PaymentResult />} />
+          <Route path="/payment/cancel" element={<PaymentResult cancelled />} />
+        </Route>
       </Route>
 
-      <Route element={<ProtectedRoute allowedRoles={['student', 'teacher', 'admin']} />}>
+      <Route element={<ProtectedRoute allowedRoles={['student']} />}>
         <Route element={<StudentLayout />}>
           <Route path="/learning" element={<StudentHomePage />} />
           <Route path="/learning/dashboard" element={<StudentDashboard />} />
@@ -98,8 +124,14 @@ export default function AppRoutes() {
           <Route path="/learning/tests/:id" element={<TestDetailPage />} />
           <Route path="/learning/tests/attempt/:attemptId" element={<TestSessionPage />} />
           <Route path="/learning/tests/review/:attemptId" element={<TestReviewPage />} />
-          <Route path="/learning/profile" element={<StudentProfile />} />
+          <Route path="/learning/profile" element={<Navigate to="/profile" replace />} />
           <Route path="/learning/flashcards" element={<FlashcardListPage />} />
+        </Route>
+      </Route>
+
+      {/* Flashcard Study Page (Accessible by Student, Teacher, and Admin for Preview/Learning) */}
+      <Route element={<ProtectedRoute allowedRoles={['student', 'teacher', 'admin']} />}>
+        <Route element={<StudentLayout />}>
           <Route path="/learning/flashcards/:deckId" element={<FlashcardStudyPage />} />
         </Route>
       </Route>
@@ -127,6 +159,7 @@ export default function AppRoutes() {
           <Route path="/teacher/library" element={<LibraryResourceListPage />} />
           <Route path="/teacher/library/create" element={<LibraryResourceCreatePage />} />
           <Route path="/teacher/library/edit/:id" element={<LibraryResourceEditPage />} />
+          <Route path="/teacher/profile" element={<StudentProfile />} />
         </Route>
       </Route>
 
@@ -140,9 +173,9 @@ export default function AppRoutes() {
           <Route path="/admin/lessons" element={<LessonManagement />} />
           <Route path="/admin/tests" element={<TestManagement />} />
           <Route path="/admin/flashcards" element={<AdminFlashcardManagement />} />
-          <Route path="/admin/payments" element={<PaymentManagement />} />
           <Route path="/admin/transactions" element={<TransactionList />} />
           <Route path="/admin/revenue" element={<RevenueStatistics />} />
+          <Route path="/admin/profile" element={<StudentProfile />} />
         </Route>
       </Route>
     </Routes>

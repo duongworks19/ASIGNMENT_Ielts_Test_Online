@@ -1,17 +1,17 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Form, Alert, Spinner, Badge } from 'react-bootstrap';
-import { getCurrentUser } from '../../services/authService';
+import { Container, Row, Col, Card, Button, Form, Alert, Spinner } from 'react-bootstrap';
+import { useAuth } from '../../contexts/AuthContext';
 import { getCartItems, removeFromCart, subscribeCartChanges, clearCart } from '../../services/cartService';
 import { getCourseById } from '../../services/courseLearning.service';
 import { validateCoupon, calculateDiscount, getCouponMessage } from '../../services/couponService';
-import { buildVietQrUrl, buildTransferContent, createPendingPayment, PAYMENT_STATUS, getLatestPayment, formatVnd } from '../../services/paymentService';
+import { createPayOSPayment, PAYMENT_STATUS, formatVnd } from '../../services/paymentService';
 
 const FALLBACK = 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&w=600&q=80';
 
 export default function CartCheckout() {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const { user, isInitializing } = useAuth();
   const shoppingPath = user?.role === 'student' ? '/learning/courses' : '/online-courses';
 
   const [cartCourseIds, setCartCourseIds] = useState(getCartItems());
@@ -20,7 +20,6 @@ export default function CartCheckout() {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
-  const [payment, setPayment] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
 
@@ -59,17 +58,12 @@ export default function CartCheckout() {
       .finally(() => { if (!ignore) setLoading(false); });
       
     return () => { ignore = true; };
-  }, [JSON.stringify(cartCourseIds)]);
+  }, [cartCourseIds]);
 
   useEffect(() => {
     const unsub = subscribeCartChanges(() => setCartCourseIds(getCartItems()));
     return () => unsub();
   }, []);
-
-  useEffect(() => {
-    if (!user || cartCourseIds.length !== 1) return;
-    getLatestPayment(user.id, cartCourseIds[0]).then(setPayment).catch(() => setPayment(null));
-  }, [user, cartCourseIds]);
 
   const handleRemove = (id) => { removeFromCart(id); setCartCourseIds(getCartItems()); };
   const handleApplyCoupon = () => {
@@ -82,13 +76,29 @@ export default function CartCheckout() {
     if (!courses.length) { setError('Giỏ hàng đang trống.'); return; }
     setProcessing(true); setError('');
     try {
-      const content = buildTransferContent(user.id, cartCourseIds.join(','));
-      const created = await createPendingPayment({ userId: user.id, courseId: cartCourseIds.length === 1 ? cartCourseIds[0] : 'bundle', amount: payableAmount, transferContent: content });
-      setPayment(created);
-      if (cartCourseIds.length === 1) clearCart();
+      const result = await createPayOSPayment({
+        courseIds: cartCourseIds,
+        couponCode: appliedCoupon?.code || '',
+      });
+      const created = result.payment;
+      if (created?.status === PAYMENT_STATUS.PAID) {
+        clearCart();
+        navigate('/', { replace: true, state: { paymentStatus: 'paid' } });
+        return;
+      }
+      if (!created?.checkoutUrl) throw new Error('PayOS chưa trả về đường dẫn thanh toán.');
+      window.location.assign(created.checkoutUrl);
     } catch (e) { setError(e.message || 'Gửi yêu cầu thanh toán thất bại.'); }
     finally { setProcessing(false); }
   };
+
+  if (isInitializing) {
+    return (
+      <div className="d-flex align-items-center justify-content-center min-vh-100" role="status">
+        <Spinner animation="border" variant="primary" />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -116,10 +126,6 @@ export default function CartCheckout() {
       </div>
     );
   }
-
-  const qrUrl = payableAmount > 0
-    ? buildVietQrUrl(payableAmount, buildTransferContent(user.id, cartCourseIds.join(',')))
-    : null;
 
   return (
     <div style={{ margin: '-16px -24px 0', background: 'var(--tp-page-bg)', minHeight: '100vh' }}>
@@ -271,7 +277,7 @@ export default function CartCheckout() {
                         {processing ? (
                           <><Spinner animation="border" size="sm" className="me-2" /> Đang tạo đơn...</>
                         ) : (
-                          <><i className="bi bi-lock-fill me-2"></i> Thanh toán ngay</>
+                          <><i className="bi bi-credit-card me-2"></i> Thanh toán qua PayOS</>
                         )}
                       </Button>
                       
@@ -279,18 +285,9 @@ export default function CartCheckout() {
                         <i className="bi bi-arrow-left me-2"></i>Quay lại danh sách
                       </Button>
 
-                      {payment?.status === PAYMENT_STATUS?.PENDING && (
-                        <Alert variant="warning" className="rounded-3 mt-4 small mb-0 border-0">
-                          <i className="bi bi-hourglass-split me-2"></i>Đơn đã tạo — đang chờ admin xác nhận.
-                        </Alert>
-                      )}
-
-                      {payment && payment.status !== PAYMENT_STATUS?.PAID && qrUrl && (
-                        <div className="mt-4 text-center bg-light p-3 rounded-4 border">
-                          <p className="text-dark small mb-3 fw-bold"><i className="bi bi-qr-code-scan me-2 text-primary"></i>Quét mã QR để thanh toán</p>
-                          <img src={qrUrl} alt="QR VietQR" className="img-fluid rounded-3 border bg-white p-2 shadow-sm" />
-                        </div>
-                      )}
+                      <div className="small text-muted text-center mt-3">
+                        Giá và ưu đãi được xác nhận lại trên máy chủ trước khi mở PayOS.
+                      </div>
                     </Card.Body>
                   </Card>
                 </div>

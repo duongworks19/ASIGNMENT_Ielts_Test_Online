@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { getCurrentUser, logout } from '../../services/authService';
+import { useAuth } from '../../contexts/AuthContext';
 import './StudentSidebar.css';
 
 const NAV_ITEMS = [
@@ -16,22 +16,14 @@ const NAV_ITEMS = [
   {
     section: 'Account',
     links: [
-      { to: '/learning/profile', icon: <i className="bi bi-person-circle"></i>, label: 'My Profile', end: true },
+      { to: '/profile', icon: <i className="bi bi-person-circle"></i>, label: 'My Profile', end: true },
     ]
   }
 ];
 
 const StudentSidebar = () => {
-  const [user, setUser] = React.useState(getCurrentUser());
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  React.useEffect(() => {
-    const handleStorageChange = () => {
-      setUser(getCurrentUser());
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   const handleLogout = () => {
     logout();

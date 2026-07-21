@@ -6,7 +6,7 @@ import { teacherLibraryService } from '../../services/teacherLibraryService';
 
 export default function LibraryResourceListPage() {
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);

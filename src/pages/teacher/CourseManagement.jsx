@@ -26,7 +26,7 @@ export default function CourseManagement() {
 
   const currentUser = getCurrentUser();
   // EARS[Ubiquitous]: THE system SHALL restrict courses list to only the teacher's owned courses.
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   useEffect(() => {
     fetchCourses();

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, Button, Form, Spinner, Alert, Badge } from 'react-bootstrap';
-// Import from service that may not exist yet, it's mocked in testing.
 import { approveRequest, rejectRequest } from '../../../services/adminService';
+import { useAuth } from '../../../contexts/AuthContext';
 
 /**
  * Modal xem chi tiết nội dung cần kiểm duyệt (course/lesson).
  */
 const ApprovalDetailModal = ({ request, isOpen, onClose, onActionSuccess }) => {
+  const { user: currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [rejectMode, setRejectMode] = useState(false);
@@ -30,10 +31,8 @@ const ApprovalDetailModal = ({ request, isOpen, onClose, onActionSuccess }) => {
     setLoading(true);
     setError('');
     try {
-      // Get admin ID from local storage
-      const authUserStr = localStorage.getItem('ielts_auth_user');
-      const authUser = authUserStr ? JSON.parse(authUserStr) : {};
-      const adminId = authUser.id || 'u-admin-001';
+      const adminId = currentUser?.id;
+      if (!adminId) throw new Error('Phiên Admin không hợp lệ.');
 
       await approveRequest(request.id, request.targetType, request.targetId, adminId);
 
@@ -61,9 +60,8 @@ const ApprovalDetailModal = ({ request, isOpen, onClose, onActionSuccess }) => {
     setLoading(true);
     setError('');
     try {
-      const authUserStr = localStorage.getItem('ielts_auth_user');
-      const authUser = authUserStr ? JSON.parse(authUserStr) : {};
-      const adminId = authUser.id || 'u-admin-001';
+      const adminId = currentUser?.id;
+      if (!adminId) throw new Error('Phiên Admin không hợp lệ.');
 
       await rejectRequest(request.id, request.targetType, request.targetId, adminId, adminNote);
 

@@ -34,7 +34,7 @@ export default function CourseEditPage() {
   const [isUnauthorized, setIsUnauthorized] = useState(false);
 
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm({
     resolver: zodResolver(courseSchema),

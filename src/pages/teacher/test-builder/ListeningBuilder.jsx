@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap';
 import QuestionBlockEditor from './QuestionBlockEditor';
+import { LISTENING_SAMPLES } from '../../../utils/sampleQuestions';
 
 const parseRange = (range, fallbackStart, fallbackEnd) => {
   const match = String(range || '').match(/(\d+)\s*-\s*(\d+)/);
@@ -203,7 +204,10 @@ export default function ListeningBuilder({ value, onChange }) {
                   description={`${blockCount} blocks, ${(section.blocks || []).reduce((sum, b) => sum + (b.questions || []).length, 0)} questions. Paste questions specific to this section here.`}
                   variant="warning"
                   blocks={section.blocks || []}
+                  defaultSampleText={LISTENING_SAMPLES[index]}
                   onChange={(newBlocks) => updateSection(section.id, { blocks: newBlocks })}
+                  skill="Listening"
+                  referenceIndex={index}
                 />
               </div>
             )}

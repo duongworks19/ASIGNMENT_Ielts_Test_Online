@@ -1,227 +1,204 @@
-/**
- * RevenueStatistics.jsx — Admin: Thống kê doanh thu toàn hệ thống
- * Route: /admin/revenue
- */
-
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Spinner, Alert } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Alert, Card, Col, Container, Row, Spinner, Table } from 'react-bootstrap';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
-import { getTransactions } from '../../services/adminService';
+import { getRevenueStatistics } from '../../services/adminService';
+import { formatVnd } from '../../services/paymentService';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+const EMPTY_REPORT = {
+  summary: { totalRevenue: 0, totalOrders: 0, averageOrderValue: 0, coursesSold: 0 },
+  byCourse: [],
+  byMonth: [],
+};
+
+const compactMoney = (amount) => {
+  if (amount >= 1000000) return `${Math.round(amount / 100000) / 10}tr`;
+  if (amount >= 1000) return `${Math.round(amount / 1000)}k`;
+  return String(amount);
+};
 
 export default function RevenueStatistics() {
+  const [report, setReport] = useState(EMPTY_REPORT);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [transactions, setTransactions] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     document.title = 'Thống kê doanh thu | Admin';
-    const fetchStats = async () => {
+    let active = true;
+    const loadRevenue = async () => {
+      setLoading(true);
+      setError('');
       try {
-        setLoading(true);
-        // Lấy toàn bộ transaction thành công
-        const data = await getTransactions({ status: 'completed' });
-        setTransactions(Array.isArray(data) ? data : []);
-      } catch (err) {
-        setError('Không thể tải dữ liệu doanh thu.');
+        const data = await getRevenueStatistics();
+        if (active) setReport({ ...EMPTY_REPORT, ...data, summary: { ...EMPTY_REPORT.summary, ...data.summary } });
+      } catch (requestError) {
+        if (active) setError(requestError.message || 'Không thể tải dữ liệu doanh thu.');
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
-    fetchStats();
+    loadRevenue();
+    return () => { active = false; };
   }, []);
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-  };
-
-  // Tính toán số liệu thống kê
-  const totalRevenue = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-  const totalOrders = transactions.length;
-  const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-
-  // Dữ liệu biểu đồ theo tháng (giả lập nếu thiếu dữ liệu, hoặc tính từ transactions)
-  // Thực tế: Nhóm theo tháng năm từ createdAt
-  const revenueByMonth = {};
-  transactions.forEach(t => {
-    const date = new Date(t.createdAt || Date.now());
-    const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
-    if (!revenueByMonth[monthYear]) {
-      revenueByMonth[monthYear] = 0;
-    }
-    revenueByMonth[monthYear] += (t.amount || 0);
-  });
-
-  const chartData = Object.keys(revenueByMonth).map(key => ({
-    name: key,
-    revenue: revenueByMonth[key]
-  })).sort((a, b) => {
-    const [ma, ya] = a.name.split('/');
-    const [mb, yb] = b.name.split('/');
-    return new Date(ya, ma - 1) - new Date(yb, mb - 1);
-  });
-
-  // Dữ liệu phương thức thanh toán
-  const methodData = {};
-  transactions.forEach(t => {
-    const method = t.method || 'unknown';
-    if (!methodData[method]) methodData[method] = 0;
-    methodData[method] += (t.amount || 0);
-  });
-
-  const pieData = Object.keys(methodData).map(key => ({
-    name: key.toUpperCase(),
-    value: methodData[key]
+  const monthlyData = report.byMonth.map((entry) => ({
+    ...entry,
+    label: entry.month.split('-').reverse().join('/'),
+  }));
+  const topCourses = report.byCourse.slice(0, 8).map((entry) => ({
+    ...entry,
+    shortTitle: entry.courseTitle.length > 28 ? `${entry.courseTitle.slice(0, 28)}...` : entry.courseTitle,
   }));
 
-  // Nếu không có dữ liệu, mock một chút cho đẹp
-  const finalChartData = chartData.length > 0 ? chartData : [
-    { name: '1/2026', revenue: 15000000 },
-    { name: '2/2026', revenue: 22000000 },
-    { name: '3/2026', revenue: 18000000 },
-    { name: '4/2026', revenue: 35000000 },
-    { name: '5/2026', revenue: 42000000 },
-    { name: '6/2026', revenue: 50000000 },
-  ];
-
-  const finalPieData = pieData.length > 0 ? pieData : [
-    { name: 'BANK-TRANSFER', value: 40000000 },
-    { name: 'MOMO', value: 25000000 },
-    { name: 'VNPAY', value: 15000000 },
-  ];
-
   return (
-    <div style={{ margin: '-16px -24px 0', background: 'var(--tp-page-bg)', minHeight: '100vh' }}>
+    <div className="admin-page-shell">
       <div className="tp-page-header">
         <div className="tp-page-header-inner">
           <div>
-            <div className="tp-page-badge"><i className="bi bi-graph-up-arrow"></i> Báo cáo</div>
+            <div className="tp-page-badge"><i className="bi bi-graph-up-arrow" /> Doanh thu thật</div>
             <h1 className="tp-page-title">Thống kê doanh thu</h1>
-            <p className="tp-page-sub">Phân tích tổng quan về tình hình kinh doanh và tăng trưởng của hệ thống</p>
+            <p className="tp-page-sub">Số liệu từ các đơn PayOS đã thanh toán, phân bổ đến từng khóa học</p>
           </div>
         </div>
       </div>
 
       <div className="tp-main-content">
         <Container fluid="xxl" className="px-4">
-          {error && <Alert variant="danger" className="rounded-4">{error}</Alert>}
+          {error && <Alert variant="danger">{error}</Alert>}
           {loading ? (
-            <div className="text-center py-5">
+            <div className="text-center py-5" role="status">
               <Spinner animation="border" variant="primary" />
-              <p className="text-muted mt-3">Đang tải dữ liệu thống kê...</p>
+              <p className="text-muted mt-3">Đang tổng hợp giao dịch PayOS...</p>
             </div>
           ) : (
             <>
-              {/* Thẻ chỉ số tổng quan */}
+              <Row className="g-3 mb-4">
+                {[
+                  { label: 'Tổng doanh thu', value: formatVnd(report.summary.totalRevenue), icon: 'bi-cash-stack', color: 'success' },
+                  { label: 'Đơn thành công', value: `${report.summary.totalOrders} đơn`, icon: 'bi-receipt-cutoff', color: 'primary' },
+                  { label: 'Giá trị trung bình', value: formatVnd(report.summary.averageOrderValue), icon: 'bi-calculator', color: 'warning' },
+                  { label: 'Lượt khóa học bán', value: `${report.summary.coursesSold} lượt`, icon: 'bi-journal-check', color: 'info' },
+                ].map((stat) => (
+                  <Col xl={3} md={6} key={stat.label}>
+                    <Card className="border-0 shadow-sm h-100">
+                      <Card.Body className="p-4 d-flex align-items-center gap-3">
+                        <div className={`bg-${stat.color} bg-opacity-10 text-${stat.color} d-flex align-items-center justify-content-center`} style={{ width: 48, height: 48, borderRadius: 8 }}>
+                          <i className={`bi ${stat.icon} fs-5`} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="small text-muted">{stat.label}</div>
+                          <div className="h5 fw-bold mb-0 text-truncate">{stat.value}</div>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+
+              {report.summary.totalOrders === 0 && (
+                <Alert variant="info">
+                  Chưa có giao dịch PayOS thành công. Biểu đồ và bảng doanh thu sẽ tự cập nhật sau lần mua đầu tiên.
+                </Alert>
+              )}
+
               <Row className="g-4 mb-4">
-                <Col md={4}>
-                  <Card className="tp-stat-card bg-white p-4 rounded-4 shadow-sm border-0 h-100">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style={{ width: '56px', height: '56px', fontSize: '1.5rem' }}>
-                        <i className="bi bi-wallet2"></i>
+                <Col xl={7}>
+                  <Card className="border-0 shadow-sm h-100">
+                    <Card.Body className="p-4">
+                      <h2 className="h6 fw-bold mb-4">Doanh thu theo tháng</h2>
+                      <div style={{ width: '100%', height: 320 }}>
+                        {monthlyData.length ? (
+                          <ResponsiveContainer>
+                            <LineChart data={monthlyData} margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                              <XAxis dataKey="label" axisLine={false} tickLine={false} />
+                              <YAxis axisLine={false} tickLine={false} tickFormatter={compactMoney} />
+                              <Tooltip formatter={(value) => [formatVnd(value), 'Doanh thu']} />
+                              <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        ) : (
+                          <div className="h-100 d-flex align-items-center justify-content-center text-muted">Chưa có dữ liệu</div>
+                        )}
                       </div>
-                      <div>
-                        <div className="text-muted small fw-medium text-uppercase letter-spacing-1">Tổng doanh thu</div>
-                        <div className="fw-bold fs-3 text-dark">{formatCurrency(totalRevenue || 182000000)}</div>
-                      </div>
-                    </div>
+                    </Card.Body>
                   </Card>
                 </Col>
-                <Col md={4}>
-                  <Card className="tp-stat-card bg-white p-4 rounded-4 shadow-sm border-0 h-100">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center" style={{ width: '56px', height: '56px', fontSize: '1.5rem' }}>
-                        <i className="bi bi-cart-check"></i>
+                <Col xl={5}>
+                  <Card className="border-0 shadow-sm h-100">
+                    <Card.Body className="p-4">
+                      <h2 className="h6 fw-bold mb-4">Khóa học theo doanh thu</h2>
+                      <div style={{ width: '100%', height: 320 }}>
+                        {topCourses.length ? (
+                          <ResponsiveContainer>
+                            <BarChart data={topCourses} layout="vertical" margin={{ top: 0, right: 15, left: 20, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                              <XAxis type="number" tickFormatter={compactMoney} axisLine={false} tickLine={false} />
+                              <YAxis type="category" dataKey="shortTitle" width={135} axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                              <Tooltip formatter={(value) => [formatVnd(value), 'Doanh thu']} />
+                              <Bar dataKey="revenue" fill="#16a34a" radius={[0, 4, 4, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        ) : (
+                          <div className="h-100 d-flex align-items-center justify-content-center text-muted">Chưa có dữ liệu</div>
+                        )}
                       </div>
-                      <div>
-                        <div className="text-muted small fw-medium text-uppercase letter-spacing-1">Giao dịch thành công</div>
-                        <div className="fw-bold fs-3 text-dark">{totalOrders || 145} <span className="fs-6 text-muted fw-normal">đơn</span></div>
-                      </div>
-                    </div>
-                  </Card>
-                </Col>
-                <Col md={4}>
-                  <Card className="tp-stat-card bg-white p-4 rounded-4 shadow-sm border-0 h-100">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center" style={{ width: '56px', height: '56px', fontSize: '1.5rem' }}>
-                        <i className="bi bi-cash-coin"></i>
-                      </div>
-                      <div>
-                        <div className="text-muted small fw-medium text-uppercase letter-spacing-1">Giá trị trung bình/đơn</div>
-                        <div className="fw-bold fs-3 text-dark">{formatCurrency(averageOrderValue || 1255000)}</div>
-                      </div>
-                    </div>
+                    </Card.Body>
                   </Card>
                 </Col>
               </Row>
 
-              {/* Biểu đồ */}
-              <Row className="g-4 mb-4">
-                <Col lg={8}>
-                  <Card className="border-0 shadow-sm rounded-4 h-100">
-                    <Card.Body className="p-4 p-xl-5">
-                      <h4 className="fw-bold mb-4 text-dark"><i className="bi bi-bar-chart-fill me-2 text-primary"></i>Tăng trưởng theo tháng</h4>
-                      <div style={{ width: '100%', height: '350px' }}>
-                        <ResponsiveContainer>
-                          <AreaChart data={finalChartData} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 13}} dy={10} />
-                            <YAxis 
-                              axisLine={false} 
-                              tickLine={false} 
-                              tick={{fill: '#64748b', fontSize: 13}} 
-                              tickFormatter={(val) => `${val / 1000000}tr`} 
-                            />
-                            <Tooltip 
-                              formatter={(value) => [formatCurrency(value), 'Doanh thu']}
-                              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
-                            />
-                            <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                <Col lg={4}>
-                  <Card className="border-0 shadow-sm rounded-4 h-100">
-                    <Card.Body className="p-4 p-xl-5 d-flex flex-column">
-                      <h4 className="fw-bold mb-4 text-dark"><i className="bi bi-pie-chart-fill me-2 text-success"></i>Tỷ trọng cổng thanh toán</h4>
-                      <div style={{ width: '100%', height: '300px', flex: 1 }}>
-                        <ResponsiveContainer>
-                          <PieChart>
-                            <Pie
-                              data={finalPieData}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={70}
-                              outerRadius={100}
-                              paddingAngle={5}
-                              dataKey="value"
-                            >
-                              {finalPieData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                              ))}
-                            </Pie>
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                            <Legend verticalAlign="bottom" height={36} iconType="circle" />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              </Row>
+              <Card className="border-0 shadow-sm overflow-hidden">
+                <Card.Header className="bg-white border-bottom p-4">
+                  <h2 className="h6 fw-bold mb-1">Doanh thu theo từng khóa học</h2>
+                  <p className="small text-muted mb-0">Số tiền sau giảm giá được phân bổ theo tỷ lệ giá của từng khóa trong đơn.</p>
+                </Card.Header>
+                {report.byCourse.length ? (
+                  <div className="table-responsive">
+                    <Table hover className="align-middle mb-0">
+                      <thead className="bg-light">
+                        <tr>
+                          <th className="ps-4 py-3">Khóa học</th>
+                          <th>Giảng viên</th>
+                          <th className="text-end">Lượt bán</th>
+                          <th className="text-end">Người mua</th>
+                          <th className="text-end">Số đơn</th>
+                          <th className="text-end pe-4">Doanh thu</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {report.byCourse.map((course) => (
+                          <tr key={course.courseId}>
+                            <td className="ps-4 py-3">
+                              <div className="fw-semibold">{course.courseTitle}</div>
+                              <code className="small text-muted">{course.courseId}</code>
+                            </td>
+                            <td>
+                              <div>{course.teacherName || 'Chưa gán'}</div>
+                              {course.teacherId && <code className="small text-muted">{course.teacherId}</code>}
+                            </td>
+                            <td className="text-end">{course.sales}</td>
+                            <td className="text-end">{course.buyers}</td>
+                            <td className="text-end">{course.orders}</td>
+                            <td className="text-end pe-4 fw-bold text-success">{formatVnd(course.revenue)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center text-muted py-5">Chưa có khóa học phát sinh doanh thu.</div>
+                )}
+              </Card>
             </>
           )}
         </Container>

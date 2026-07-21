@@ -34,6 +34,7 @@ export default function TestDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCreatingAttempt, setIsCreatingAttempt] = useState(false);
+  const [isFree, setIsFree] = useState(false);
 
   useEffect(() => {
     const fetchTestDetail = async () => {
@@ -44,7 +45,18 @@ export default function TestDetailPage() {
         const normalized = normalizeTest(test);
         setTestDetail(normalized);
 
-        if (isFreeAccessibleTest(normalized)) {
+        let freeFlag = isFreeAccessibleTest(normalized);
+
+        if (normalized.courseId) {
+          const { getCourseById } = await import('../../services/courseLearning.service');
+          const course = await getCourseById(normalized.courseId);
+          if (course && (!course.price || course.price === 0)) {
+            freeFlag = true;
+          }
+        }
+        setIsFree(freeFlag);
+
+        if (freeFlag) {
           const remaining = await testAttemptService.getRemainingAttempts(normalized, currentUser);
           setAttemptInfo(remaining);
         }
@@ -59,25 +71,25 @@ export default function TestDetailPage() {
 
   const canStart = useMemo(() => {
     if (!testDetail) return false;
-    if (isFreeAccessibleTest(testDetail)) {
+    if (isFree) {
       return attemptInfo.remaining > 0;
     }
     return Boolean(currentUser);
-  }, [testDetail, attemptInfo.remaining, currentUser]);
+  }, [testDetail, attemptInfo.remaining, currentUser, isFree]);
 
   const blockedMessage = useMemo(() => {
     if (!testDetail) return '';
-    if (isFreeAccessibleTest(testDetail) && attemptInfo.remaining <= 0) {
+    if (isFree && attemptInfo.remaining <= 0) {
       if (!currentUser) {
-        return 'Bạn đã dùng hết lượt miễn phí trên trình duyệt này. Hãy đăng ký hoặc đăng nhập để tiếp tục học với lộ trình đầy đủ.';
+        return 'Bạn đã dùng hết 3 lượt làm bài miễn phí trên trình duyệt này. Hãy đăng ký khóa học Premium để làm bài không giới hạn và đồng bộ tiến trình.';
       }
-      return 'Bạn đã dùng hết lượt làm miễn phí. Hãy nâng cấp Premium khóa học để làm lại không giới hạn.';
+      return 'Bạn đã dùng hết 3 lượt làm bài miễn phí. Hãy đăng ký khóa học Premium để làm bài không giới hạn và nhận hướng dẫn chi tiết.';
     }
-    if (!currentUser && !isFreeAccessibleTest(testDetail)) {
+    if (!currentUser && !isFree) {
       return 'Bạn cần đăng nhập để làm test thuộc khóa học.';
     }
     return '';
-  }, [testDetail, attemptInfo.remaining, currentUser]);
+  }, [testDetail, attemptInfo.remaining, currentUser, isFree]);
 
   const handleStartTest = async () => {
     if (!testDetail) return;
@@ -117,7 +129,6 @@ export default function TestDetailPage() {
   }
 
   const sk = getSkill(testDetail.skill);
-  const isFree = isFreeAccessibleTest(testDetail);
 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh' }}>
@@ -223,7 +234,7 @@ export default function TestDetailPage() {
                       <strong style={{ fontSize: 15 }}>Thông tin lượt làm bài</strong>
                     </div>
                     <div style={{ fontSize: 14 }}>
-                      Lượt còn lại: <span className="fw-bold">{attemptInfo.remaining === Infinity ? 'Không giới hạn (Đã nâng cấp gói 99K)' : `${attemptInfo.remaining}/${attemptInfo.limit}`}</span>
+                      Lượt còn lại: <span className="fw-bold">{attemptInfo.remaining === Infinity ? 'Không giới hạn (Đã nâng cấp khóa Premium)' : `${attemptInfo.remaining}/${attemptInfo.limit || 3} (Giới hạn tối đa 3 lần)`}</span>
                     </div>
                     {!currentUser && (
                       <div className="mt-2 pt-2 border-top border-info border-opacity-25" style={{ fontSize: 13, opacity: 0.9 }}>
@@ -247,7 +258,7 @@ export default function TestDetailPage() {
                         </>
                       )}
                       {currentUser && testDetail.courseId && (
-                        <Link to={`/learning/courses/${testDetail.courseId}`} target="_top" className="btn btn-sm px-3 rounded-pill fw-semibold" style={{ background: '#b45309', color: '#fff' }}>Xem & Nâng cấp Khóa học</Link>
+                        <Link to={`/learning/courses/${testDetail.courseId}`} target="_top" className="btn btn-sm px-3 rounded-pill fw-semibold" style={{ background: '#b45309', color: '#fff' }}>Đăng ký Premium (99K)</Link>
                       )}
                     </div>
                   </div>

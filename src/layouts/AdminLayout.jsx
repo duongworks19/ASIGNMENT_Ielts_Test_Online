@@ -1,13 +1,14 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { logout, getCurrentUser } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/teacher-portal.css';
 import './TeacherLayout.css'; // Reusing the sidebar CSS for unified look
+import './AdminLayout.css';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
-  const currentUser = getCurrentUser();
+  const { user: currentUser, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -15,7 +16,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="teacher-layout">
+    <div className="teacher-layout admin-layout">
 
       {/* Sidebar */}
       <div className="teacher-sidebar p-3 shadow-sm">
@@ -31,8 +32,12 @@ export default function AdminLayout() {
 
         {/* User Info */}
         <div className="d-flex align-items-center gap-3 px-3 py-2 mb-4 bg-light rounded-3 border">
-          <div className="bg-white rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary shadow-sm" style={{ width: '40px', height: '40px' }}>
-            {currentUser?.fullName?.charAt(0) || 'A'}
+          <div className="bg-white rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary shadow-sm" style={{ width: '40px', height: '40px', overflow: 'hidden' }}>
+            {currentUser?.avatar && /^(https?:\/\/|data:image\/)/i.test(currentUser.avatar) ? (
+              <img src={currentUser.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              currentUser?.fullName?.charAt(0) || 'A'
+            )}
           </div>
           <div className="overflow-hidden">
             <h6 className="mb-0 text-dark text-truncate fw-semibold">{currentUser?.fullName || 'System Admin'}</h6>
@@ -55,6 +60,9 @@ export default function AdminLayout() {
           <NavLink to="/admin/users" className={({ isActive }) => `teacher-nav-link ${isActive ? 'active' : ''}`}>
             <i className="bi bi-people"></i> Quản lý Người dùng
           </NavLink>
+          <NavLink to="/admin/profile" className={({ isActive }) => `teacher-nav-link ${isActive ? 'active' : ''}`}>
+            <i className="bi bi-person-circle"></i> Hồ sơ cá nhân
+          </NavLink>
           <NavLink to="/admin/courses" className={({ isActive }) => `teacher-nav-link ${isActive ? 'active' : ''}`}>
             <i className="bi bi-journal-bookmark"></i> Quản lý Khóa học
           </NavLink>
@@ -66,9 +74,6 @@ export default function AdminLayout() {
           </NavLink>
           <NavLink to="/admin/flashcards" className={({ isActive }) => `teacher-nav-link ${isActive ? 'active' : ''}`}>
             <i className="bi bi-layers"></i> Quản lý Flashcards
-          </NavLink>
-          <NavLink to="/admin/payments" className={({ isActive }) => `teacher-nav-link ${isActive ? 'active' : ''}`}>
-            <i className="bi bi-credit-card"></i> Quản lý Thanh toán
           </NavLink>
           <NavLink to="/admin/transactions" className={({ isActive }) => `teacher-nav-link ${isActive ? 'active' : ''}`}>
             <i className="bi bi-receipt"></i> Lịch sử Giao dịch
@@ -91,17 +96,9 @@ export default function AdminLayout() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-grow-1 d-flex flex-column overflow-auto bg-light">
-        <header className="bg-white py-3 px-4 d-flex justify-content-between align-items-center shadow-sm" style={{ zIndex: 10 }}>
-          <span className="text-secondary small fw-medium">
-            <i className="bi bi-building me-2"></i>Học kỳ: Summer 2026 | FPT University
-          </span>
-          <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fw-medium">
-            <i className="bi bi-check-circle-fill me-2"></i>Mock Server Connected
-          </span>
-        </header>
+      <div className="admin-main-shell flex-grow-1 d-flex flex-column overflow-auto bg-light">
 
-        <main className="flex-grow-1 p-0">
+        <main className="admin-main flex-grow-1">
           <Outlet />
         </main>
       </div>

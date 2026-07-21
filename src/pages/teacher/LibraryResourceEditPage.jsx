@@ -10,7 +10,7 @@ export default function LibraryResourceEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);

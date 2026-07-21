@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Badge, Button, Card, Col, Form, Row } from 'react-bootstrap';
 import QuestionBlockEditor from './QuestionBlockEditor';
+import { READING_SAMPLES } from '../../../utils/sampleQuestions';
 
 // Utils removed as blocks are now managed locally per passage
 
@@ -116,7 +117,10 @@ export default function ReadingBuilder({ value, onChange }) {
                     description={`${blockCount} blocks, ${(passage.blocks || []).reduce((sum, b) => sum + (b.questions || []).length, 0)} questions. Paste questions specific to this passage here.`}
                     variant="primary"
                     blocks={passage.blocks || []}
+                    defaultSampleText={READING_SAMPLES[index]}
                     onChange={(newBlocks) => updatePassage(passage.id, { blocks: newBlocks })}
+                    skill="Reading"
+                    referenceIndex={index}
                   />
                 </div>
               )}

@@ -18,40 +18,40 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import LessonPage from './LessonPage';
 import * as service from '../../services/courseLearning.service';
 import * as progressUtil from '../../utils/progress.util';
+import { setCurrentUserSnapshot } from '../../services/authService';
 
 // ── Mock react-router-dom ──────────────────────────────────────────────────
-const mockNavigate = vi.fn();
-const mockUseParams = vi.fn();
+const mockNavigate = jest.fn();
+const mockUseParams = jest.fn();
 
-vi.mock('react-router-dom', () => ({
+jest.mock('react-router-dom', () => ({
   useParams: () => mockUseParams(),
   useNavigate: () => mockNavigate,
 }));
 
 // ── Mock service layer ─────────────────────────────────────────────────────
-vi.mock('../../services/courseLearning.service', () => ({
-  getLessons: vi.fn(),
-  getLessonProgress: vi.fn(),
-  getEnrollment: vi.fn(),
-  updateEnrollmentProgress: vi.fn(),
-  getLessonProgressByLesson: vi.fn(),
-  createLessonProgress: vi.fn(),
-  updateLessonProgress: vi.fn(),
+jest.mock('../../services/courseLearning.service', () => ({
+  getLessons: jest.fn(),
+  getLessonProgress: jest.fn(),
+  getEnrollment: jest.fn(),
+  updateEnrollmentProgress: jest.fn(),
+  getLessonProgressByLesson: jest.fn(),
+  createLessonProgress: jest.fn(),
+  updateLessonProgress: jest.fn(),
 }));
 
 // ── Mock progress util ─────────────────────────────────────────────────────
-vi.mock('../../utils/progress.util', () => ({
-  calculateProgress: vi.fn(() => 50),
-  getNextLesson: vi.fn(),
-  getPreviousLesson: vi.fn(),
+jest.mock('../../utils/progress.util', () => ({
+  calculateProgress: jest.fn(() => 50),
+  getNextLesson: jest.fn(),
+  getPreviousLesson: jest.fn(),
 }));
 
 // ── Mock child components (dumb stubs) ────────────────────────────────────
-vi.mock('../../components/feature-course-learning/LessonSidebar', () => ({
+jest.mock('../../components/feature-course-learning/LessonSidebar', () => ({
   default: ({ lessons, onSelectLesson }) => (
     <div data-testid="mock-sidebar">
       {lessons.map((l) => (
@@ -67,7 +67,7 @@ vi.mock('../../components/feature-course-learning/LessonSidebar', () => ({
   ),
 }));
 
-vi.mock('../../components/feature-course-learning/LessonContentPlayer', () => ({
+jest.mock('../../components/feature-course-learning/LessonContentPlayer', () => ({
   default: ({ lesson }) => (
     <div data-testid="mock-player">{lesson ? lesson.title : 'No Lesson'}</div>
   ),
@@ -97,7 +97,8 @@ function setupDefaultMocks(lessonId = 'l-002') {
 
 describe('LessonPage Component', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
+    setCurrentUserSnapshot({ id: 'u-001', role: 'student', status: 'active' });
   });
 
   // TC_LP_01 — Happy path: Layout renders

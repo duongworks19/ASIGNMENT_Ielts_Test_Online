@@ -1,154 +1,105 @@
-/**
- * Traceability Matrix:
- * - ADM-USER-01: Render user list.
- * - ADM-USER-02: Filter and search users.
- * - ADM-USER-03: Change user role.
- * - ADM-USER-04: Change user status.
- * - ADM-USER-05: Delete user.
- * - Error Handling: Block modification of own account.
- */
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import UserManagement from '../../../pages/admin/UserManagement';
-import { getUsers, updateUserRole, updateUserStatus, deleteUser } from '../../../services/adminService';
+import { createUser, deleteUser, getUsers, updateUser, updateUserStatus } from '../../../services/adminService';
 
-// Virtual mock since adminService might not be fully implemented
+jest.mock('../../../contexts/AuthContext', () => ({
+  useAuth: () => ({ user: { id: 'u-admin-001', role: 'admin', email: 'admin@test.com' } }),
+}));
 jest.mock('../../../services/adminService', () => ({
-  getUsers: jest.fn(),
-  updateUserRole: jest.fn(),
-  updateUserStatus: jest.fn(),
-  deleteUser: jest.fn(),
-}), { virtual: true });
+  createUser: jest.fn(), deleteUser: jest.fn(), getUsers: jest.fn(), updateUser: jest.fn(), updateUserStatus: jest.fn(),
+}));
+jest.mock('react-hot-toast', () => ({ success: jest.fn(), error: jest.fn() }));
 
-describe('UserManagement Page', () => {
-  const mockUsers = [
-    { id: 'u-admin-001', name: 'Admin 1', email: 'admin@test.com', role: 'admin', status: 'active', createdAt: '2026-06-01T00:00:00Z' },
-    { id: 'u-student-001', name: 'Student 1', email: 'student@test.com', role: 'student', status: 'active', createdAt: '2026-06-02T00:00:00Z' },
-  ];
+const users = [
+  { id: 'u-admin-001', fullName: 'Admin One', email: 'admin@test.com', role: 'admin', status: 'active', createdAt: '2026-01-01T00:00:00Z' },
+  { id: 'u-student-001', fullName: 'Student One', email: 'student@test.com', role: 'student', status: 'active', createdAt: '2026-02-01T00:00:00Z' },
+];
 
+describe('UserManagement behavior', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    Storage.prototype.getItem = jest.fn(() => JSON.stringify({ id: 'u-admin-001' }));
-    getUsers.mockResolvedValue({ data: mockUsers, headers: { 'x-total-count': '2' } });
-  });
-
-  it('should render user list (Happy Path ADM-USER-01)', async () => {
-    render(<UserManagement />);
-    
-    // EARS[Event]: WHEN Admin fetches the user list...
-    expect(getUsers).toHaveBeenCalledTimes(1);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Student 1')).toBeInTheDocument();
-      expect(screen.getByText('admin@test.com')).toBeInTheDocument();
-    });
-  });
-
-  it('should filter users based on inputs (Happy Path ADM-USER-02)', async () => {
-    render(<UserManagement />);
-    await waitFor(() => screen.getByText('Student 1'));
-    
-    const searchInput = screen.getByPlaceholderText(/Search by name or email/i);
-    fireEvent.change(searchInput, { target: { value: 'Student' } });
-    
-    const filterBtn = screen.getByRole('button', { name: /Filter/i });
-    fireEvent.click(filterBtn);
-    
-    expect(getUsers).toHaveBeenCalledWith(expect.objectContaining({ q: 'Student' }));
-
-    await waitFor(() => {
-      expect(screen.getByText('Student 1')).toBeInTheDocument();
-    });
-  });
-
-  it('should disable manage button for current admin (Error Case / Unwanted Pattern)', async () => {
-    render(<UserManagement />);
-    await waitFor(() => screen.getByText('Admin 1'));
-    
-    // EARS[Unwanted]: WHERE Admin attempts to change their own role or status...
-    const rows = screen.getAllByRole('row');
-    const adminRow = rows.find(r => within(r).queryByText('Admin 1'));
-    const manageBtn = within(adminRow).getByRole('button', { name: /Manage/i });
-    
-    expect(manageBtn).toBeDisabled();
-  });
-
-  it('should open confirm modal and call update role (Happy Path ADM-USER-03)', async () => {
-    updateUserRole.mockResolvedValue({});
-    render(<UserManagement />);
-    await waitFor(() => screen.getByText('Student 1'));
-    
-    const rows = screen.getAllByRole('row');
-    const studentRow = rows.find(r => within(r).queryByText('Student 1'));
-    const manageBtn = within(studentRow).getByRole('button', { name: /Manage/i });
-    
-    fireEvent.click(manageBtn);
-    const makeTeacherBtn = screen.getByText('Make Teacher');
-    fireEvent.click(makeTeacherBtn);
-    
-    const confirmBtn = await screen.findByRole('button', { name: /Confirm/i });
-    fireEvent.click(confirmBtn);
-    
-    await waitFor(() => {
-      expect(updateUserRole).toHaveBeenCalledWith('u-student-001', 'teacher');
-    });
-
-    // Wait for the re-fetch to complete
-    await waitFor(() => {
-      expect(getUsers).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  it('should open confirm modal and call update status (Happy Path ADM-USER-04)', async () => {
+    getUsers.mockResolvedValue({ data: users, total: 12, page: 1, pageSize: 10, totalPages: 2 });
+    createUser.mockResolvedValue({ id: 'u-student-010' });
+    updateUser.mockResolvedValue({});
     updateUserStatus.mockResolvedValue({});
-    render(<UserManagement />);
-    await waitFor(() => screen.getByText('Student 1'));
-    
-    const rows = screen.getAllByRole('row');
-    const studentRow = rows.find(r => within(r).queryByText('Student 1'));
-    const manageBtn = within(studentRow).getByRole('button', { name: /Manage/i });
-    
-    fireEvent.click(manageBtn);
-    const lockBtn = screen.getByText('Lock Account');
-    fireEvent.click(lockBtn);
-    
-    const confirmBtn = await screen.findByRole('button', { name: /Confirm/i });
-    fireEvent.click(confirmBtn);
-    
-    await waitFor(() => {
-      expect(updateUserStatus).toHaveBeenCalledWith('u-student-001', 'locked', expect.any(String));
-    });
-
-    // Wait for the re-fetch to complete
-    await waitFor(() => {
-      expect(getUsers).toHaveBeenCalledTimes(2);
-    });
+    deleteUser.mockResolvedValue({ message: 'ok' });
   });
 
-  it('should call delete API (Happy Path ADM-USER-05)', async () => {
-    deleteUser.mockResolvedValue({});
+  test('renders sanitized list, total and real pagination', async () => {
     render(<UserManagement />);
-    await waitFor(() => screen.getByText('Student 1'));
-    
-    const rows = screen.getAllByRole('row');
-    const studentRow = rows.find(r => within(r).queryByText('Student 1'));
-    const manageBtn = within(studentRow).getByRole('button', { name: /Manage/i });
-    
-    fireEvent.click(manageBtn);
-    const deleteBtn = screen.getByText('Delete User');
-    fireEvent.click(deleteBtn);
-    
-    const confirmBtn = await screen.findByRole('button', { name: /Confirm/i });
-    fireEvent.click(confirmBtn);
-    
-    await waitFor(() => {
-      expect(deleteUser).toHaveBeenCalledWith('u-student-001');
-    });
+    expect(await screen.findByText('Student One')).toBeInTheDocument();
+    expect(screen.getByText('Tổng số: 12')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Trang sau' })).toBeEnabled();
+  });
 
-    // Wait for the re-fetch to complete
-    await waitFor(() => {
-      expect(getUsers).toHaveBeenCalledTimes(2);
-    });
+  test('search and role/status filters are sent to the service', async () => {
+    render(<UserManagement />);
+    await screen.findByText('Student One');
+    fireEvent.change(screen.getByLabelText('Tìm theo tên hoặc email'), { target: { name: 'q', value: 'student' } });
+    fireEvent.change(screen.getByLabelText('Lọc theo role'), { target: { name: 'role', value: 'student' } });
+    fireEvent.change(screen.getByLabelText('Lọc theo status'), { target: { name: 'status', value: 'active' } });
+    await waitFor(() => expect(getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ q: 'student', role: 'student', status: 'active', page: 1 })));
+  });
+
+  test('adds a Student with validated fields and no Admin create option', async () => {
+    render(<UserManagement />);
+    await screen.findByText('Student One');
+    fireEvent.click(screen.getByRole('button', { name: /Add User/i }));
+    expect(within(screen.getByLabelText('Role')).queryByRole('option', { name: 'Admin' })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Họ và tên'), { target: { value: 'New Student' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: ' NEW@EXAMPLE.COM ' } });
+    fireEvent.change(screen.getByLabelText('Mật khẩu ban đầu'), { target: { value: 'StrongPass1' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu' }));
+    await waitFor(() => expect(createUser).toHaveBeenCalledWith(expect.objectContaining({ fullName: 'New Student', email: 'new@example.com', role: 'student', password: 'StrongPass1' })));
+  });
+
+  test('shows field validation instead of submitting weak password', async () => {
+    render(<UserManagement />);
+    await screen.findByText('Student One');
+    fireEvent.click(screen.getByRole('button', { name: /Add User/i }));
+    fireEvent.change(screen.getByLabelText('Họ và tên'), { target: { value: 'New Student' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@example.com' } });
+    fireEvent.change(screen.getByLabelText('Mật khẩu ban đầu'), { target: { value: 'weak' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu' }));
+    expect(await screen.findByText(/Mật khẩu cần ít nhất 8 ký tự/i)).toBeInTheDocument();
+    expect(createUser).not.toHaveBeenCalled();
+  });
+
+  test('edits user information and role', async () => {
+    render(<UserManagement />);
+    const student = await screen.findByText('Student One');
+    const row = student.closest('tr');
+    fireEvent.click(within(row).getByRole('button', { name: 'Edit' }));
+    fireEvent.change(screen.getByLabelText('Họ và tên'), { target: { value: 'Teacher One' } });
+    fireEvent.change(screen.getByLabelText('Role'), { target: { value: 'teacher' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu' }));
+    await waitFor(() => expect(updateUser).toHaveBeenCalledWith('u-student-001', expect.objectContaining({ fullName: 'Teacher One', role: 'teacher' })));
+  });
+
+  test('current admin cannot open destructive status menu or change own role', async () => {
+    render(<UserManagement />);
+    const adminCell = await screen.findByText('Admin One');
+    const row = adminCell.closest('tr');
+    expect(within(row).getByRole('button', { name: 'Status' })).toBeDisabled();
+    fireEvent.click(within(row).getByRole('button', { name: 'Edit' }));
+    expect(screen.getByLabelText('Role')).toBeDisabled();
+    expect(screen.getByLabelText('Status')).toBeDisabled();
+  });
+
+  test('locks another user after confirmation', async () => {
+    render(<UserManagement />);
+    const row = (await screen.findByText('Student One')).closest('tr');
+    fireEvent.click(within(row).getByRole('button', { name: 'Status' }));
+    fireEvent.click(await screen.findByText('Lock 24 hours'));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => expect(updateUserStatus).toHaveBeenCalledWith('u-student-001', 'locked', expect.any(String)));
+  });
+
+  test('surfaces API errors and always ends loading', async () => {
+    getUsers.mockRejectedValue(new Error('Server unavailable'));
+    render(<UserManagement />);
+    expect(await screen.findByText('Server unavailable')).toBeInTheDocument();
+    expect(screen.queryByText('Đang tải người dùng...')).not.toBeInTheDocument();
   });
 });

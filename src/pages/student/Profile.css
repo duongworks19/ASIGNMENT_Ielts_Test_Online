@@ -1,10 +1,14 @@
 /* Profile.css — Premium */
-.prf-page { background: #f0f4f8; min-height: 100vh; }
+.prf-page {
+  background: #f0f4f8;
+  min-height: 100vh;
+  isolation: isolate;
+}
 
 /* HERO */
 .prf-hero {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
-  padding: 72px 0 110px; position: relative; overflow: hidden;
+  padding: 40px 0 80px; position: relative; overflow: hidden;
 }
 .prf-hero-orb { position: absolute; border-radius: 50%; pointer-events: none; }
 .prf-hero-orb.o1 { width: 420px; height: 420px; top: -100px; right: -50px; background: radial-gradient(circle, rgba(96,165,250,0.15) 0%, transparent 70%); }
@@ -22,7 +26,7 @@
 .prf-hero-sub { color: rgba(255,255,255,0.68); font-size: 0.97rem; }
 
 /* MAIN */
-.prf-main { margin-top: 40px; position: relative; z-index: 20; padding-bottom: 60px; }
+.prf-main { margin-top: -50px; position: relative; z-index: 20; padding-bottom: 60px; }
 .prf-loading { text-align: center; padding: 60px 0; }
 
 /* OVERVIEW CARD */

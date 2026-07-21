@@ -52,7 +52,7 @@ export default function CourseDetailBuilder() {
   const [working, setWorking] = useState(false);
 
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const fetchData = useCallback(async () => {
     setLoading(true);

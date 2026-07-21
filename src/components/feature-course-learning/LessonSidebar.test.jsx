@@ -13,7 +13,6 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
 import LessonSidebar from './LessonSidebar';
 
 const mockLessons = [
@@ -26,7 +25,7 @@ describe('LessonSidebar Component', () => {
 
   // TC_LS_01 & TC_LS_02
   it('renders lessons correctly, highlights active lesson, and shows checkmarks', () => {
-    const mockOnSelect = vi.fn();
+    const mockOnSelect = jest.fn();
     render(
       <LessonSidebar 
         lessons={mockLessons} 
@@ -58,7 +57,7 @@ describe('LessonSidebar Component', () => {
 
   // TC_LS_03
   it('calls onSelectLesson when a lesson is clicked', () => {
-    const mockOnSelect = vi.fn();
+    const mockOnSelect = jest.fn();
     render(
       <LessonSidebar 
         lessons={mockLessons} 

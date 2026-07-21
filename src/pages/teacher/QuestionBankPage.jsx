@@ -41,7 +41,7 @@ const SUPPORTED_TYPES = {
 export default function QuestionBankPage() {
   const { id: testId } = useParams();
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const [test, setTest] = useState(null);
   const [course, setCourse] = useState(null);

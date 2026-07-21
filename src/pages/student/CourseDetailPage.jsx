@@ -6,6 +6,7 @@ import { getPaidPayment, getLatestPayment, PAYMENT_STATUS } from '../../services
 import { addToCart, isInCart, subscribeCartChanges } from '../../services/cartService';
 import { isInWishlist, addToWishlist, removeFromWishlist, subscribeWishlistChanges } from '../../services/wishlistService';
 import { testService } from '../../services/testService';
+import { testAttemptService } from '../../services/testAttemptService';
 import './CourseDetailPage.css';
 
 const WHAT_YOU_LEARN = [
@@ -37,7 +38,6 @@ const CourseDetailPage = () => {
   const navigate = useNavigate();
   const storedUser = getCurrentUser();
   const storedUserId = storedUser?.id;
-  const storedUserEmail = storedUser?.email;
 
   const [course, setCourse] = useState(null);
   const [enrollment, setEnrollment] = useState(null);
@@ -46,6 +46,7 @@ const CourseDetailPage = () => {
   const [inCart, setInCart] = useState(false);
   const [wishlistAdded, setWishlistAdded] = useState(false);
   const [courseTests, setCourseTests] = useState([]);
+  const [totalAttempts, setTotalAttempts] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [error, setError] = useState(null);
@@ -55,15 +56,8 @@ const CourseDetailPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Re-fetch user id from server to avoid stale localStorage
-        let currentUserId = storedUserId || 'u-001';
-        if (storedUserEmail) {
-          try {
-            const res = await fetch(`http://localhost:9999/users?email=${encodeURIComponent(storedUserEmail)}`);
-            const data = await res.json();
-            if (data?.length > 0) currentUserId = data[0].id;
-          } catch (_) {}
-        }
+        const currentUserId = storedUserId;
+        if (!currentUserId) throw new Error('Phiên đăng nhập không hợp lệ.');
 
         const [courseData, testsData] = await Promise.all([
           getCourseById(courseId),
@@ -88,6 +82,15 @@ const CourseDetailPage = () => {
             // sync cart/wishlist initial state
             setInCart(isInCart(courseId));
             setWishlistAdded(isInWishlist(courseId));
+
+            // fetch total attempts
+            let attemptsCount = 0;
+            const owner = { userId: currentUserId };
+            for (const test of testsData) {
+              const attempts = await testAttemptService.getAttemptsForTestOwner(test.id, owner);
+              attemptsCount += attempts.length;
+            }
+            setTotalAttempts(attemptsCount);
         }
       } catch (err) {
         setError(err.message || 'An error occurred while fetching course details.');
@@ -96,7 +99,7 @@ const CourseDetailPage = () => {
       }
     };
     if (courseId) fetchCourseData();
-  }, [courseId, storedUserEmail, storedUserId]);
+  }, [courseId, storedUserId]);
 
   useEffect(() => {
     const handleCart = () => setInCart(isInCart(courseId));
@@ -117,15 +120,8 @@ const CourseDetailPage = () => {
 
     setIsEnrolling(true);
     try {
-      let currentUserId = storedUserId || 'u-001';
-      if (storedUserEmail) {
-        try {
-          const res = await fetch(`http://localhost:9999/users?email=${encodeURIComponent(storedUserEmail)}`);
-          const data = await res.json();
-          if (data?.length > 0) currentUserId = data[0].id;
-        } catch (_) {}
-      }
-      const newEnrollment = await createEnrollment(currentUserId, courseId);
+      if (!storedUserId) throw new Error('Phiên đăng nhập không hợp lệ.');
+      const newEnrollment = await createEnrollment(storedUserId, courseId);
       setEnrollment(newEnrollment);
     } catch (err) {
       setError(err.message || 'Failed to enroll in the course.');
@@ -367,11 +363,11 @@ const CourseDetailPage = () => {
                       <button className="cta-btn cta-btn-primary mb-3" onClick={handleContinue} data-testid="btn-continue-learning">
                         <i className="bi bi-play-circle-fill me-2"></i>Continue Learning
                       </button>
-                      {isFree && enrollment && !enrollment.isPremium && course.premiumPrice && (
+                      {isFree && (!enrollment || !enrollment.isPremium) && totalAttempts >= 3 && (
                         <div className="card border-warning mb-3 shadow-sm bg-warning bg-opacity-10">
                           <div className="card-body p-3 text-center">
                             <h6 className="fw-bold text-dark mb-1"><i className="bi bi-star-fill text-warning me-1"></i> Upgrade to Premium</h6>
-                            <p className="text-muted small mb-2">Unlock unlimited test attempts for only {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.premiumPrice)}</p>
+                            <p className="text-muted small mb-2">Unlock unlimited test attempts for only {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.premiumPrice || 99000)}</p>
                             <button className="btn btn-warning w-100 fw-bold shadow-sm" onClick={() => navigate(`/checkout/${courseId}?upgrade=true`)}>
                               Upgrade Now
                             </button>

@@ -28,7 +28,7 @@ const FlashcardStudyPage = () => {
   const navigate = useNavigate();
   const activeDeckId = deckId || id;
   const currentUser = getCurrentUser();
-  const userId = currentUser?.id || 'google-student-1';
+  const userId = currentUser?.id;
 
   const [deck, setDeck] = useState(null);
   const [cards, setCards] = useState([]);
@@ -118,7 +118,7 @@ const FlashcardStudyPage = () => {
         word: newWord.trim(),
         meaning: newMeaning.trim(),
         example: newExample.trim(),
-        teacherId: deck?.teacherId || 'u-teacher-001',
+        teacherId: deck?.teacherId || null,
         createdAt: new Date().toISOString()
       };
       

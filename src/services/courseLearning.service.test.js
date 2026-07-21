@@ -7,15 +7,14 @@
  * TC_API_02    | EARS[Unwanted]         | Throw proper error message when API fails.
  * -----------------------------------------------------------------------------------------
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api, { getCourses, getCourseById } from './courseLearning.service';
 
 // Mock axios instance methods
-vi.mock('axios', () => {
+jest.mock('axios', () => {
   return {
     default: {
-      create: vi.fn(() => ({
-        get: vi.fn()
+      create: jest.fn(() => ({
+        get: jest.fn()
       }))
     }
   };
@@ -23,7 +22,7 @@ vi.mock('axios', () => {
 
 describe('Course API Services', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   // TC_API_01

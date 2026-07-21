@@ -13,7 +13,6 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
 import EnrollmentCTA from './EnrollmentCTA';
 
 describe('EnrollmentCTA Component', () => {
@@ -21,7 +20,7 @@ describe('EnrollmentCTA Component', () => {
 
   // TC_ECTA_01
   it('renders "Join Course" when not enrolled and calls onEnroll on click', () => {
-    const mockOnEnroll = vi.fn();
+    const mockOnEnroll = jest.fn();
     render(
       <EnrollmentCTA 
         courseId={mockCourseId} 
@@ -43,7 +42,7 @@ describe('EnrollmentCTA Component', () => {
 
   // TC_ECTA_02
   it('renders "Continue Learning" when enrolled and calls onContinue on click', () => {
-    const mockOnContinue = vi.fn();
+    const mockOnContinue = jest.fn();
     const mockEnrollment = { id: 'e-001', userId: 'u-001', courseId: mockCourseId };
     
     render(
@@ -68,7 +67,7 @@ describe('EnrollmentCTA Component', () => {
 
   // TC_ECTA_03 & TC_ECTA_04
   it('shows spinner, disables button, and ignores clicks when isLoading is true', () => {
-    const mockOnEnroll = vi.fn();
+    const mockOnEnroll = jest.fn();
     render(
       <EnrollmentCTA 
         courseId={mockCourseId} 

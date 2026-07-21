@@ -15,7 +15,10 @@ import { approveRequest, rejectRequest } from '../../../../services/adminService
 jest.mock('../../../../services/adminService', () => ({
   approveRequest: jest.fn(),
   rejectRequest: jest.fn(),
-}), { virtual: true });
+}));
+jest.mock('../../../../contexts/AuthContext', () => ({
+  useAuth: () => ({ user: { id: 'u-admin-test', role: 'admin', status: 'active' } }),
+}));
 
 describe('ApprovalDetailModal Component', () => {
   const mockRequest = {
@@ -37,7 +40,6 @@ describe('ApprovalDetailModal Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    Storage.prototype.getItem = jest.fn(() => JSON.stringify({ id: 'u-admin-test' }));
   });
 
   it('should not render if isOpen is false', () => {

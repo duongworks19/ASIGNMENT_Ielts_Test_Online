@@ -24,7 +24,7 @@ const statusMeta = {
 
 export default function TestListPage() {
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const [tests, setTests] = useState([]);
   const [courses, setCourses] = useState([]);

@@ -117,7 +117,7 @@ const TestManagement = () => {
   };
 
   return (
-    <div style={{ margin: '-16px -24px 0', background: 'var(--tp-page-bg)', minHeight: '100vh' }}>
+    <div className="admin-page-shell">
       <div className="tp-page-header">
         <div className="tp-page-header-inner">
           <div>

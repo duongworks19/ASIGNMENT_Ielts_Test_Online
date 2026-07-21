@@ -23,7 +23,7 @@ const getProgressStatus = (enrollment) => {
 const MyCoursesPage = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const userId = user?.id || 'u-001';
+  const userId = user?.id || '';
 
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [isLoading, setIsLoading]   = useState(true);
@@ -35,22 +35,8 @@ const MyCoursesPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        let resolvedUserId = userId;
-        if (user?.email) {
-          try {
-            const res = await fetch(`http://localhost:9999/users?email=${encodeURIComponent(user.email)}`);
-            const freshUsers = await res.json();
-            if (freshUsers.length > 0) {
-              resolvedUserId = freshUsers[0].id;
-              if (resolvedUserId !== user.id) {
-                const { saveAuthUser } = await import('../../services/authService');
-                saveAuthUser({ ...user, ...freshUsers[0] });
-              }
-            }
-          } catch (_) {}
-        }
-
-        const enrollments = await getEnrollmentsByUser(resolvedUserId);
+        if (!userId) throw new Error('Phiên đăng nhập không hợp lệ.');
+        const enrollments = await getEnrollmentsByUser(userId);
         const courseResults = await Promise.allSettled(
           enrollments.map((enr) => getCourseById(enr.courseId))
         );

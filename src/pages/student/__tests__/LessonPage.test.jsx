@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LessonPage from '../LessonPage';
 import * as courseLearningService from '../../../services/courseLearning.service';
+import { setCurrentUserSnapshot } from '../../../services/authService';
 
 /**
  * TRACEABILITY MATRIX
@@ -58,6 +59,7 @@ describe('LessonPage - Mark Logic (T015)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    setCurrentUserSnapshot({ id: 'u-001', role: 'student', status: 'active' });
     
     useNavigate.mockReturnValue(mockNavigate);
     useParams.mockReturnValue({ courseId: 'course-001', lessonId: 'lesson-001' });

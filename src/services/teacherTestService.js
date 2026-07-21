@@ -20,7 +20,7 @@ const createTestApprovalRequest = async (test) => {
     id: `req-test-${test.id}-${Date.now()}`,
     targetType: 'test',
     targetId: test.id,
-    teacherId: test.teacherId || 'u-teacher-001',
+    teacherId: test.teacherId,
     status: 'pending',
     message: `Teacher submitted test "${test.title}" for admin approval.`,
     createdAt: new Date().toISOString(),

@@ -30,7 +30,7 @@ export default function CourseCreatePage() {
   const [submitting, setSubmitting] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const { register, handleSubmit, watch, trigger, getValues, formState: { errors } } = useForm({
     resolver: zodResolver(courseSchema),

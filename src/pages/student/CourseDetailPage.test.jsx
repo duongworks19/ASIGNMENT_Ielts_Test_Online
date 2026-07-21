@@ -14,26 +14,26 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CourseDetailPage from './CourseDetailPage';
 import { getCourseById, getEnrollment, createEnrollment } from '../../services/courseLearning.service';
+import { setCurrentUserSnapshot } from '../../services/authService';
 
 // Mock react-router-dom
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', () => ({
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
   useParams: () => ({ id: 'c-001' }),
   useNavigate: () => mockNavigate
 }));
 
 // Mock services (Task T002 + T003)
-vi.mock('../../services/courseLearning.service', () => ({
-  getCourseById: vi.fn(),
-  getEnrollment: vi.fn(),
-  createEnrollment: vi.fn()
+jest.mock('../../services/courseLearning.service', () => ({
+  getCourseById: jest.fn(),
+  getEnrollment: jest.fn(),
+  createEnrollment: jest.fn()
 }));
 
 // Mock EnrollmentCTA so we don't need its internal testing here
-vi.mock('../../components/feature-course-learning/EnrollmentCTA', () => {
+jest.mock('../../components/feature-course-learning/EnrollmentCTA', () => {
   return {
     default: ({ enrollment, onEnroll, onContinue }) => (
       <div>
@@ -51,7 +51,8 @@ describe('CourseDetailPage Component', () => {
   const mockCourse = { id: 'c-001', title: 'Master IELTS', price: 50 };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
+    setCurrentUserSnapshot({ id: 'u-001', role: 'student', status: 'active' });
   });
 
   // TC_CDP_01

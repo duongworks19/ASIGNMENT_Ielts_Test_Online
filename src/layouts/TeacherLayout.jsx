@@ -1,13 +1,13 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { logout, getCurrentUser } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/teacher-portal.css';
 import './TeacherLayout.css';
 
 export default function TeacherLayout() {
   const navigate = useNavigate();
-  const currentUser = getCurrentUser();
+  const { user: currentUser, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -31,8 +31,12 @@ export default function TeacherLayout() {
 
         {/* Thông tin giáo viên đăng nhập */}
         <div className="d-flex align-items-center gap-3 px-3 py-2 mb-4 bg-light rounded-3 border">
-          <div className="bg-white rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary shadow-sm" style={{ width: '40px', height: '40px' }}>
-            {currentUser?.fullName?.charAt(0) || 'T'}
+          <div className="bg-white rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary shadow-sm" style={{ width: '40px', height: '40px', overflow: 'hidden' }}>
+            {currentUser?.avatar && /^(https?:\/\/|data:image\/)/i.test(currentUser.avatar) ? (
+              <img src={currentUser.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              currentUser?.fullName?.charAt(0) || 'T'
+            )}
           </div>
           <div className="overflow-hidden">
             <h6 className="mb-0 text-dark text-truncate fw-semibold">{currentUser?.fullName || 'IELTS Instructor'}</h6>
@@ -56,6 +60,9 @@ export default function TeacherLayout() {
           </NavLink>
           <NavLink to="/teacher/students" className={({ isActive }) => `teacher-nav-link ${isActive ? 'active' : ''}`}>
             <i className="bi bi-people"></i> Quản lý Học viên
+          </NavLink>
+          <NavLink to="/teacher/profile" className={({ isActive }) => `teacher-nav-link ${isActive ? 'active' : ''}`}>
+            <i className="bi bi-person-circle"></i> Hồ sơ cá nhân
           </NavLink>
           <NavLink to="/teacher/flashcards" className={({ isActive }) => `teacher-nav-link ${isActive ? 'active' : ''}`}>
             <i className="bi bi-layers"></i> Quản lý Flashcard
@@ -85,14 +92,6 @@ export default function TeacherLayout() {
 
       {/* Main Content Area */}
       <div className="flex-grow-1 d-flex flex-column overflow-auto">
-        <header className="bg-white py-3 px-4 d-flex justify-content-between align-items-center shadow-sm" style={{ zIndex: 10 }}>
-          <span className="text-secondary small fw-medium">
-            <i className="bi bi-building me-2"></i>Học kỳ: Summer 2026 | FPT University
-          </span>
-          <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fw-medium">
-            <i className="bi bi-check-circle-fill me-2"></i>Mock Server Connected
-          </span>
-        </header>
 
         <main className="p-4 flex-grow-1">
           <Outlet />

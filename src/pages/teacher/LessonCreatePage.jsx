@@ -41,7 +41,7 @@ export default function LessonCreatePage() {
   const [targetCourseStatus, setTargetCourseStatus] = useState('');
 
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm({
     resolver: zodResolver(lessonSchema),

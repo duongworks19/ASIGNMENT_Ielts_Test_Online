@@ -21,7 +21,7 @@ const StatCard = ({ title, value, icon }) => {
       className="card h-100 shadow-sm border-0" 
       style={{ 
         background: 'linear-gradient(135deg, #ffffff 0%, #f7f7f7 100%)', 
-        borderTop: '4px solid #0052ff' // Sử dụng màu primary từ DESIGN.md
+        borderTop: '4px solid #0052ff' // Sử dụng màu primary của theme
       }}
     >
       <div className="card-body d-flex flex-row align-items-center justify-content-between p-4">

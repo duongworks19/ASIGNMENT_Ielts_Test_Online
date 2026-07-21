@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import LessonContentPlayer from '../../components/feature-course-learning/LessonContentPlayer';
 import {
   getLessons,
@@ -19,7 +19,7 @@ import './LessonPage.css';
 const LessonPage = () => {
   const { courseId, lessonId } = useParams();
   const navigate = useNavigate();
-  const storedUser = getCurrentUser();
+  const currentUserId = getCurrentUser()?.id || '';
 
   const [lessons, setLessons] = useState([]);
   const [courseTests, setCourseTests] = useState([]);
@@ -30,7 +30,7 @@ const LessonPage = () => {
   const [error, setError] = useState(null);
   const [isMarkingComplete, setIsMarkingComplete] = useState(false);
   const [markError, setMarkError] = useState(null);
-  const [resolvedUserId, setResolvedUserId] = useState('u-001');
+  const [resolvedUserId, setResolvedUserId] = useState(currentUserId);
   const [activeView, setActiveView] = useState({ type: 'lesson', id: lessonId });
 
   useEffect(() => {
@@ -42,15 +42,8 @@ const LessonPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Re-fetch userId from server to avoid stale localStorage
-        let userId = storedUser?.id || 'u-001';
-        if (storedUser?.email) {
-          try {
-            const res = await fetch(`http://localhost:9999/users?email=${encodeURIComponent(storedUser.email)}`);
-            const data = await res.json();
-            if (data?.length > 0) userId = data[0].id;
-          } catch (_) {}
-        }
+        const userId = currentUserId;
+        if (!userId) throw new Error('Phiên đăng nhập không hợp lệ.');
         setResolvedUserId(userId);
 
         const [lessonsData, progressRecords, enrollmentData, testsData, flashcardsData] = await Promise.all([
@@ -81,7 +74,7 @@ const LessonPage = () => {
       }
     };
     if (courseId) fetchData();
-  }, [courseId, lessonId, navigate]);
+  }, [courseId, lessonId, navigate, currentUserId]);
 
   const currentLesson = lessons.find((l) => l.id === lessonId) || null;
   const isCurrentCompleted = completedIds.includes(lessonId);

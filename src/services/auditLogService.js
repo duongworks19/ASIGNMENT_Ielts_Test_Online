@@ -1,15 +1,11 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:9999';
+import api from './api';
 
 export const auditLogService = {
-  logAction: async (action, details, userId = 'unknown') => {
+  logAction: async (action, details) => {
     try {
-      const response = await axios.post(`${API_URL}/auditLogs`, {
+      const response = await api.post('/auditLogs', {
         action,
-        userId,
         details,
-        timestamp: new Date().toISOString()
       });
       return response.data;
     } catch (error) {

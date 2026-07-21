@@ -404,27 +404,73 @@ export default function TestSessionPage() {
     </button>
   );
 
-  const QuestionFooterMap = () => (
-    <div className="bg-light border-top p-2 d-flex justify-content-between align-items-center flex-wrap gap-2" style={{ position: 'sticky', bottom: 0, zIndex: 1000 }}>
-      <div className="d-flex align-items-center overflow-auto">
-        <div className="d-flex align-items-center gap-1 flex-nowrap pb-1">
-          {questions.map((question, index) => (
-            <QuestionMapItem
-              key={question.id}
-              number={index + 1}
-              isCurrent={currentQuestionIndex === index}
-              isAnswered={Boolean(getAnswerValue(answers, question, index))}
-              isFlagged={Boolean(flagged[index])}
-              onClick={() => setCurrentQuestionIndex(index)}
-            />
-          ))}
+  const getPaginationItems = (total, current) => {
+    const delta = 2;
+    const left = current - delta;
+    const right = current + delta;
+    const range = [];
+    const rangeWithDots = [];
+    let l;
+
+    for (let i = 0; i < total; i++) {
+      if (i === 0 || i === total - 1 || (i >= left && i <= right)) {
+        range.push(i);
+      }
+    }
+
+    for (let i of range) {
+      if (l !== undefined) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push('...');
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    }
+
+    return rangeWithDots;
+  };
+
+  const QuestionFooterMap = () => {
+    const paginationItems = getPaginationItems(questions.length, currentQuestionIndex);
+
+    return (
+      <div className="bg-light border-top p-2 d-flex justify-content-between align-items-center flex-wrap gap-2" style={{ position: 'sticky', bottom: 0, zIndex: 1000 }}>
+        <div className="d-flex align-items-center overflow-auto">
+          <div className="d-flex align-items-center gap-1 flex-nowrap pb-1">
+            {paginationItems.map((item, idx) => {
+              if (item === '...') {
+                return <span key={`dot-${idx}`} className="px-2 fw-bold text-muted">...</span>;
+              }
+              const index = item;
+              const question = questions[index];
+              return (
+                <QuestionMapItem
+                  key={question.id}
+                  number={index + 1}
+                  isCurrent={currentQuestionIndex === index}
+                  isAnswered={Boolean(getAnswerValue(answers, question, index))}
+                  isFlagged={Boolean(flagged[index])}
+                  onClick={() => {
+                    setCurrentQuestionIndex(index);
+                    setTimeout(() => {
+                      const el = document.getElementById(`question-${index}`);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 50);
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+        <div className="d-flex align-items-center gap-3 flex-shrink-0">
+          <SubmitButton />
         </div>
       </div>
-      <div className="d-flex align-items-center gap-3 flex-shrink-0">
-        <SubmitButton />
-      </div>
-    </div>
-  );
+    );
+  };
 
   if (skill === 'Reading') {
     const passage = getPassageForQuestion(normalizedTest, currentQuestion);
@@ -532,7 +578,7 @@ export default function TestSessionPage() {
                     const index = questions.findIndex((item) => item.id === question.id);
                     const answer = getAnswerValue(answers, question, index);
                     return (
-                      <div className="col-12" key={question.id}>
+                      <div className="col-12" key={question.id} id={`question-${index}`}>
                         <div className="bg-white px-3 py-2" style={{ border: 'none' }}>
                           <div className="d-flex align-items-center justify-content-between mb-2">
                             <span className="fw-bold text-dark" style={{ fontSize: '1.1rem' }}>Question {index + 1}</span>
@@ -561,12 +607,13 @@ export default function TestSessionPage() {
         <div className="container-fluid py-4 flex-grow-1 d-flex flex-column" style={{ maxWidth: 1600, paddingLeft: '2rem', paddingRight: '2rem' }}>
           <div className="d-flex flex-column gap-5 mb-5 flex-grow-1">
             {questions.map((question, index) => (
-              <WritingAnswerPanel
-                key={question.id}
-                question={question}
-                answer={getAnswerValue(answers, question, index)}
-                onAnswer={handleAnswer}
-              />
+              <div key={question.id} id={`question-${index}`}>
+                <WritingAnswerPanel
+                  question={question}
+                  answer={getAnswerValue(answers, question, index)}
+                  onAnswer={handleAnswer}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -599,7 +646,7 @@ export default function TestSessionPage() {
           </div>
           <div className="d-flex flex-column gap-5">
             {questions.map((question, index) => (
-              <div key={question.id} className="rounded-4 overflow-hidden shadow-sm bg-white" style={{ border: '1px solid #e2e8f0' }}>
+              <div key={question.id} id={`question-${index}`} className="rounded-4 overflow-hidden shadow-sm bg-white" style={{ border: '1px solid #e2e8f0' }}>
                 <div className="px-4 py-3 border-bottom bg-light">
                   <div className="fw-bold text-dark" style={{ fontSize: '1.1rem' }}>
                     Part {question.part || index + 1}

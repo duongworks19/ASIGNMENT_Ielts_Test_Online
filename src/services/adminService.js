@@ -1,44 +1,75 @@
-import axios from 'axios';
+import api, { getApiError } from './api';
 import { getCurrentUser } from './authService';
-
-const API_URL = 'http://localhost:9999';
 
 export function requireAdminAuth() {
   const user = getCurrentUser();
   if (!user) {
-    throw new Error('UNAUTHORIZED: Session expired. Please sign in again.');
+    throw new Error('UNAUTHORIZED: Phiên đăng nhập đã hết hạn.');
   }
   if (user.role !== 'admin') {
-    throw new Error(`FORBIDDEN: Account "${user.email}" does not have Admin permission.`);
+    throw new Error(`FORBIDDEN: Role ${user.role} không có quyền Admin.`);
   }
   return { adminId: user.id, adminName: user.name || user.fullName || user.email };
 }
 
-export const getUsers = async (params) => axios.get(`${API_URL}/users`, { params });
+export const getUsers = async (params) => (await api.get('/admin/users', { params })).data;
+
+export const getUserById = async (userId) => (await api.get(`/admin/users/${userId}`)).data.user;
+
+export const createUser = async (data) => {
+  try {
+    return (await api.post('/admin/users', data)).data.user;
+  } catch (error) {
+    throw getApiError(error, 'Không thể tạo tài khoản.');
+  }
+};
+
+export const updateUser = async (userId, data) => {
+  try {
+    return (await api.patch(`/admin/users/${userId}`, data)).data.user;
+  } catch (error) {
+    throw getApiError(error, 'Không thể cập nhật tài khoản.');
+  }
+};
+
+export const getUserSummaries = async () => (await api.get('/admin/users/summary')).data.data;
+
+export const getDashboardSummary = async () => {
+  try {
+    return (await api.get('/admin/dashboard/summary')).data.data;
+  } catch (error) {
+    throw getApiError(error, 'Không thể tải dữ liệu tổng quan quản trị.');
+  }
+};
 
 export const updateUserRole = async (userId, newRole) => {
   requireAdminAuth();
-  const response = await axios.patch(`${API_URL}/users/${userId}`, { role: newRole });
-  return response.data;
+  return updateUser(userId, { role: newRole });
 };
 
 export const updateUserStatus = async (userId, newStatus, lockedUntil = null) => {
   requireAdminAuth();
   const payload = { status: newStatus };
   if (lockedUntil !== null) payload.lockedUntil = lockedUntil;
-  const response = await axios.patch(`${API_URL}/users/${userId}`, payload);
-  return response.data;
+  try {
+    return (await api.patch(`/admin/users/${userId}/status`, payload)).data.user;
+  } catch (error) {
+    throw getApiError(error, 'Không thể cập nhật trạng thái tài khoản.');
+  }
 };
 
 export const deleteUser = async (userId) => {
   requireAdminAuth();
-  const response = await axios.delete(`${API_URL}/users/${userId}`);
-  return response.data;
+  try {
+    return (await api.delete(`/admin/users/${userId}`)).data;
+  } catch (error) {
+    throw getApiError(error, 'Không thể xóa tài khoản.');
+  }
 };
 
 export const getCourses = async (params) => {
   try {
-    const response = await axios.get(`${API_URL}/courses`, { params });
+    const response = await api.get('/courses', { params });
     return response.data;
   } catch (error) {
     return [];
@@ -47,19 +78,19 @@ export const getCourses = async (params) => {
 
 export const updateCourse = async (courseId, data) => {
   requireAdminAuth();
-  const response = await axios.patch(`${API_URL}/courses/${courseId}`, data);
+  const response = await api.patch(`/courses/${courseId}`, data);
   return response.data;
 };
 
 export const deleteCourse = async (courseId) => {
   requireAdminAuth();
-  const response = await axios.delete(`${API_URL}/courses/${courseId}`);
+  const response = await api.delete(`/courses/${courseId}`);
   return response.data;
 };
 
 export const getLessons = async (params) => {
   try {
-    const response = await axios.get(`${API_URL}/lessons`, { params });
+    const response = await api.get('/lessons', { params });
     return response.data;
   } catch (error) {
     return [];
@@ -68,19 +99,19 @@ export const getLessons = async (params) => {
 
 export const updateLesson = async (lessonId, data) => {
   requireAdminAuth();
-  const response = await axios.patch(`${API_URL}/lessons/${lessonId}`, data);
+  const response = await api.patch(`/lessons/${lessonId}`, data);
   return response.data;
 };
 
 export const deleteLesson = async (lessonId) => {
   requireAdminAuth();
-  const response = await axios.delete(`${API_URL}/lessons/${lessonId}`);
+  const response = await api.delete(`/lessons/${lessonId}`);
   return response.data;
 };
 
 export const getTests = async (params) => {
   try {
-    const response = await axios.get(`${API_URL}/tests`, { params });
+    const response = await api.get('/tests', { params });
     return response.data;
   } catch (error) {
     return [];
@@ -89,19 +120,19 @@ export const getTests = async (params) => {
 
 export const updateTest = async (testId, data) => {
   requireAdminAuth();
-  const response = await axios.patch(`${API_URL}/tests/${testId}`, data);
+  const response = await api.patch(`/tests/${testId}`, data);
   return response.data;
 };
 
 export const deleteTest = async (testId) => {
   requireAdminAuth();
-  const response = await axios.delete(`${API_URL}/tests/${testId}`);
+  const response = await api.delete(`/tests/${testId}`);
   return response.data;
 };
 
 export const getApprovalRequests = async (params) => {
   try {
-    const response = await axios.get(`${API_URL}/approvalRequests`, { params });
+    const response = await api.get('/approvalRequests', { params });
     return response.data;
   } catch (error) {
     return [];
@@ -111,7 +142,7 @@ export const getApprovalRequests = async (params) => {
 const patchTargetStatus = async (targetType, targetId, status) => {
   if (!targetType || !targetId) return;
   const collection = `${targetType}s`;
-  await axios.patch(`${API_URL}/${collection}/${targetId}`, {
+  await api.patch(`/${collection}/${targetId}`, {
     status,
     updatedAt: new Date().toISOString(),
   });
@@ -119,12 +150,12 @@ const patchTargetStatus = async (targetType, targetId, status) => {
 
 export const approveRequest = async (requestId, targetType, targetId, adminId) => {
   const admin = requireAdminAuth();
-  const current = await axios.get(`${API_URL}/approvalRequests/${requestId}`);
+  const current = await api.get(`/approvalRequests/${requestId}`);
   const request = current.data || {};
   const resolvedType = targetType || request.targetType;
   const resolvedId = targetId || request.targetId;
 
-  const response = await axios.patch(`${API_URL}/approvalRequests/${requestId}`, {
+  const response = await api.patch(`/approvalRequests/${requestId}`, {
     status: 'approved',
     reviewedAt: new Date().toISOString(),
     reviewedBy: adminId || admin.adminId,
@@ -141,14 +172,14 @@ export const approveRequest = async (requestId, targetType, targetId, adminId) =
 
 export const rejectRequest = async (requestId, targetType, targetId, adminId, reason) => {
   const admin = requireAdminAuth();
-  const current = await axios.get(`${API_URL}/approvalRequests/${requestId}`);
+  const current = await api.get(`/approvalRequests/${requestId}`);
   const request = current.data || {};
   const legacyReasonOnly = targetType && !targetId && !adminId && !reason;
   const resolvedType = legacyReasonOnly ? request.targetType : (targetType || request.targetType);
   const resolvedId = targetId || request.targetId;
   const resolvedReason = legacyReasonOnly ? targetType : (reason || '');
 
-  const response = await axios.patch(`${API_URL}/approvalRequests/${requestId}`, {
+  const response = await api.patch(`/approvalRequests/${requestId}`, {
     status: 'rejected',
     reason: resolvedReason,
     reviewedAt: new Date().toISOString(),
@@ -161,8 +192,8 @@ export const rejectRequest = async (requestId, targetType, targetId, adminId, re
 
 export const getAuditLogs = async (params) => {
   try {
-    const response = await axios.get(`${API_URL}/auditLogs`, { params });
-    return response.data;
+    const response = await api.get('/admin/audit-logs', { params });
+    return response.data.data;
   } catch (error) {
     return [];
   }
@@ -170,9 +201,18 @@ export const getAuditLogs = async (params) => {
 
 export const getTransactions = async (params) => {
   try {
-    const response = await axios.get(`${API_URL}/transactions`, { params });
+    const response = await api.get('/admin/transactions', { params });
     return response.data;
   } catch (error) {
-    return [];
+    throw getApiError(error, 'Không thể tải lịch sử giao dịch.');
+  }
+};
+
+export const getRevenueStatistics = async () => {
+  try {
+    const response = await api.get('/admin/revenue');
+    return response.data?.data || { summary: {}, byCourse: [], byMonth: [] };
+  } catch (error) {
+    throw getApiError(error, 'Không thể tải thống kê doanh thu.');
   }
 };

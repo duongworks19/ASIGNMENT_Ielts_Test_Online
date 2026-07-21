@@ -12,7 +12,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 export default function LibraryResourceCreatePage() {
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});

@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useNavigate } from 'react-router-dom';
 import MyCoursesPage from '../MyCoursesPage';
 import * as courseLearningService from '../../../services/courseLearning.service';
+import { setCurrentUserSnapshot } from '../../../services/authService';
 
 /**
  * TRACEABILITY MATRIX
@@ -56,6 +57,7 @@ describe('MyCoursesPage (T016)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    setCurrentUserSnapshot({ id: 'u-001', role: 'student', status: 'active' });
     useNavigate.mockReturnValue(mockNavigate);
   });
 

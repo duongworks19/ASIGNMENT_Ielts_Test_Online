@@ -3,7 +3,7 @@
 // Nội dung học IELTS bằng tiếng Việt, dùng chung cho:
 //  - CourseList.jsx  (trang /courses - danh sách tài nguyên)
 //  - ResourceDetail.jsx (trang /resources/:id - bài viết chi tiết)
-// Nội dung tĩnh nên đặt trong data module thay vì db.json để giàu nội dung.
+// Nội dung tĩnh nên đặt trong data module thay vì database.json để giàu nội dung.
 // ============================================================
 
 export const RESOURCE_SKILLS = ['Tất cả', 'Reading', 'Listening', 'Writing', 'Speaking', 'Vocabulary', 'Grammar'];

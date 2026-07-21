@@ -51,7 +51,7 @@ export default function LessonListPage() {
   };
 
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   useEffect(() => {
     fetchData();

@@ -9,6 +9,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import axios from 'axios';
 import LearningHistoryPage from '../LearningHistoryPage';
+import { setCurrentUserSnapshot } from '../../../services/authService';
 
 // Mock các dependencies để cô lập test (chỉ test container)
 jest.mock('axios');
@@ -18,6 +19,7 @@ jest.mock('../../../components/feature-student-dashboard-history/HistoryTable', 
 describe('LearningHistoryPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    setCurrentUserSnapshot({ id: 'u-001', name: 'Student One', role: 'student', status: 'active' });
   });
 
   // ==========================================

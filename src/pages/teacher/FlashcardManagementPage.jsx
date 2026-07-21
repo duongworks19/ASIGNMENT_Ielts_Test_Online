@@ -18,7 +18,7 @@ const deckSchema = z.object({
 
 export default function FlashcardManagementPage() {
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const [decks, setDecks] = useState([]);
   const [courses, setCourses] = useState([]);

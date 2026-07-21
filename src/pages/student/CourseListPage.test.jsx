@@ -13,17 +13,16 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CourseListPage from './CourseListPage';
 import { getCourses } from '../../services/courseLearning.service';
 
 // Mock service
-vi.mock('../../services/courseLearning.service', () => ({
-  getCourses: vi.fn(),
+jest.mock('../../services/courseLearning.service', () => ({
+  getCourses: jest.fn(),
 }));
 
 // Mock Component CourseCard để cô lập test
-vi.mock('../../components/feature-course-learning/CourseCard', () => {
+jest.mock('../../components/feature-course-learning/CourseCard', () => {
   return {
     default: ({ course }) => <div data-testid={`course-card-${course.id}`}>{course.title}</div>
   };
@@ -31,7 +30,7 @@ vi.mock('../../components/feature-course-learning/CourseCard', () => {
 
 describe('CourseListPage Component', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   // TC_CLP_01

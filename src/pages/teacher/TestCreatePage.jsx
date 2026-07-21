@@ -45,7 +45,7 @@ export default function TestCreatePage() {
   const queryCourseId = searchParams.get('courseId') || '';
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
-  const teacherId = currentUser?.id || 'u-teacher-001';
+  const teacherId = currentUser?.id;
 
   const [step, setStep] = useState(1);
   const [courses, setCourses] = useState([]);

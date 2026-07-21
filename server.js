@@ -1,4 +1,6 @@
 // server.js - Custom JSON Server Wrapper with Business Logic and Trial Limits
+require('dotenv').config({ quiet: true });
+
 (async () => {
   const { createApp } = await import('json-server/lib/app.js');
   const { Low } = await import('lowdb');
@@ -8,6 +10,8 @@
   const multer = (await import('multer')).default;
   const path = await import('path');
   const fs = await import('fs');
+  const { registerAuthRoutes } = require('./server/authRoutes');
+  const { registerPaymentRoutes } = require('./server/paymentRoutes');
 
   const PORT = process.env.PORT || 9999;
 
@@ -31,7 +35,7 @@
   const upload = multer({ storage: storage });
 
   // Initialize lowdb database
-  const adapter = new JSONFile('db.json');
+  const adapter = new JSONFile('database.json');
   const db = new Low(adapter, {});
   await db.read();
 
@@ -47,6 +51,9 @@
   db.data.approvalRequests = db.data.approvalRequests || [];
   db.data.library_resources = db.data.library_resources || [];
   db.data.enrollments = db.data.enrollments || [];
+  db.data.payments = db.data.payments || [];
+  db.data.transactions = db.data.transactions || [];
+  db.data.passwordResetTokens = db.data.passwordResetTokens || [];
 
   // Sequential ID Generator
   function generateNextId(collectionName, prefix) {
@@ -81,6 +88,11 @@
   });
 
   const bodyParser = json();
+
+  // Auth and user-management routes are registered before the raw JSON Server
+  // router so sensitive collections can never be accessed directly.
+  const { authenticate, requireRole } = registerAuthRoutes({ server, db, bodyParser });
+  registerPaymentRoutes({ server, db, bodyParser, authenticate, requireRole });
 
   // --- 0. POST /upload (Real File Upload) ---
   server.post('/upload', upload.single('file'), (req, res) => {
@@ -187,27 +199,6 @@
     await db.write();
 
     res.json(db.data.courses[courseIndex]);
-  });
-
-  // --- 3. POST /auditLogs (Audit Logging standardization) ---
-  server.post('/auditLogs', bodyParser, async (req, res) => {
-    const { action, userId, details, timestamp } = req.body;
-
-    const nextLogId = generateNextId('auditLogs', 'log-');
-    const newLog = {
-      id: nextLogId,
-      actorId: userId || req.body.actorId || 'unknown',
-      action: action || 'UNKNOWN',
-      targetType: req.body.targetType || (details && details.courseId ? 'course' : 'unknown'),
-      targetId: req.body.targetId || (details && details.courseId ? details.courseId : 'unknown'),
-      createdAt: timestamp || req.body.createdAt || new Date().toISOString()
-    };
-
-    db.data.auditLogs.push(newLog);
-    await db.write();
-
-    console.log(`[Audit System] Recorded Action: ${action} - Log ID: ${nextLogId}`);
-    res.status(201).json(newLog);
   });
 
   // --- 4. POST /testAttempts (Practice Test Limits check & Creation) ---
